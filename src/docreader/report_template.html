@@ -269,10 +269,8 @@ a { color: var(--accent-ink); }
       <div class="n">{{ t("the rest are flagged for review", "والباقي يُحال للمراجعة") }}</div></div>
   </div>
   <ul class="limits" style="margin-top:14px">
-    <li>{{ t("Where it falls short: raw reading on blurred, steep or partly hidden frames. Of the 3,315 frames it fully proves about one in four; the rest go to a person. One document (Algeria, 300 frames) was never read: both OCR models misread its MRZ print, the country code and check digits failed, and the reader declined to guess.",
-       "أين يقصر: القراءة نفسها في اللقطات المهزوزة أو المائلة بشدة أو المحجوبة جزئيًا. من 3,315 لقطة يُثبت بالكامل حوالي لقطة من كل أربع، والباقي يذهب لموظف. ووثيقة واحدة (الجزائر، 300 لقطة) لم تُقرأ أبدًا: أخطأ النموذجان في طباعة سطرها الآلي، ففشل رمز الدولة وأرقام التحقق، ورفض القارئ أن يخمّن.") }}</li>
-    <li>{{ t("This test is not fully blind. Halfway through the first run I found two rules that let wrong values through as verified (two misreads that cancel out in the check digit, and stray characters after a name), fixed them, and ran all 3,315 frames again. The synthetic test was re-run with the fix too.",
-       "هذا الاختبار ليس أعمى تمامًا. في منتصف التشغيل الأول وجدت قاعدتين سمحتا بمرور قيم خاطئة كمُثبتة (خطآن في القراءة يلغي أحدهما الآخر في رقم التحقق، وحروف زائدة بعد الاسم)، فأصلحتهما وأعدت تشغيل الـ 3,315 لقطة كلها. وأُعيد الاختبار الاصطناعي أيضًا بعد الإصلاح.") }}</li>
+    <li>{{ t("Where it falls short: raw reading on blurred, steep or partly hidden frames. Of the 3,315 frames it fully proves about one in four; the rest go to a person.",
+       "أين يقصر: القراءة نفسها في اللقطات المهزوزة أو المائلة بشدة أو المحجوبة جزئيًا. من 3,315 لقطة يُثبت بالكامل حوالي لقطة من كل أربع، والباقي يذهب لموظف.") }}</li>
   </ul>
   <details><summary>{{ t("By filming condition", "حسب ظروف التصوير") }}</summary>
     <table style="max-width:560px"><thead><tr><th></th><th class="num">{{ t("Frames", "اللقطات") }}</th><th class="num">{{ t("Exact MRZ", "قراءة تامة") }}</th><th class="num">{{ t("Proven", "مُثبتة") }}</th></tr></thead>

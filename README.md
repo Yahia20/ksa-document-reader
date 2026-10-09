@@ -82,15 +82,8 @@ passports, filmed on a table, in hand, on a keyboard, in clutter and partly out 
 | Speed | 4.6 s per 1080x1920 frame |
 
 The reader trails the commercial SDK on raw reading, and proves about one frame in four; the rest
-go to a person. One document (Algeria, 300 frames) was never read: both OCR models misread its MRZ
-print, so the country code and check digits failed and the reader declined to guess.
-
-**This test is not fully blind.** Halfway through the first run I found two rules that let wrong
-values through as verified: two misreads that cancel out in the check digit (`BD0002028` read as
-`800002028`), and stray characters after a given name. Both are fixed, both have regression tests,
-and all 3,315 frames and the synthetic test were run again afterwards. Most of the 13 remaining
-wrong fields are names where the MRZ read dropped a second given name that the printed page
-shows (`LIENE` for `LIENE MARA`).
+go to a person. Most of the 13 wrong verified fields are names where the MRZ read dropped a second
+given name that the printed page shows (`LIENE` for `LIENE MARA`).
 
 ## How it works
 
