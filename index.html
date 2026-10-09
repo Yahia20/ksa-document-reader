@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saudi Document Reader</title>
+<meta name="description" content="Reads passports, ID cards, visas, ZATCA invoices and boarding passes from a photo, and proves each field before it reaches your system.">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --card: #ffffff;
+  --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,.10);
+  --accent: #2a78d6; --accent-ink: #1c5cab; --baseline: #b9b7ae;
+  --good: #0ca30c; --good-ink: #006300; --warn: #fab219; --warn-ink: #7a5300; --serious: #ec835a; --serious-ink: #9a3a12;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --card: #161615;
+    --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,.10);
+    --accent: #3987e5; --accent-ink: #86b6ef; --baseline: #5c5b57;
+    --good-ink: #0ca30c; --warn-ink: #fab219; --serious-ink: #ec835a;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --card: #161615;
+  --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,.10);
+  --accent: #3987e5; --accent-ink: #86b6ef; --baseline: #5c5b57;
+  --good-ink: #0ca30c; --warn-ink: #fab219; --serious-ink: #ec835a;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+html[lang="ar"] body { font-family: "Segoe UI", Tahoma, system-ui, sans-serif; }
+html[lang="en"] .t-ar, html[lang="ar"] .t-en { display: none; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+header.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 0 0; }
+.kicker { color: var(--muted); font-size: 14px; letter-spacing: .02em; }
+.btn { font: inherit; font-size: 14px; color: var(--ink); background: var(--card); border: 1px solid var(--ring);
+  border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+.btn:hover { border-color: var(--axis); }
+h1 { font-size: clamp(28px, 4.6vw, 44px); line-height: 1.15; margin: 22px 0 12px; letter-spacing: -.01em; }
+h2 { font-size: clamp(22px, 3vw, 28px); margin: 0 0 6px; line-height: 1.25; }
+h3 { font-size: 18px; margin: 0 0 4px; }
+.lead { font-size: 18px; color: var(--ink-2); max-width: 780px; margin: 0 0 22px; }
+section { padding: 34px 0; border-top: 1px solid var(--grid); }
+section.first { border-top: 0; padding-top: 8px; }
+.sub { color: var(--ink-2); margin: 0 0 18px; max-width: 760px; }
+.answer { list-style: none; padding: 0; margin: 0 0 26px; display: grid; gap: 10px; }
+.answer li { background: var(--card); border: 1px solid var(--ring); border-radius: 12px; padding: 14px 16px; }
+.answer b { font-size: 18px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+.tile { background: var(--card); border: 1px solid var(--ring); border-radius: 12px; padding: 16px; }
+.tile .v { font-size: 34px; font-weight: 650; line-height: 1.1; }
+.tile .l { color: var(--ink-2); font-size: 14px; margin-top: 6px; }
+.tile .n { color: var(--muted); font-size: 13px; margin-top: 4px; }
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; counter-reset: s; }
+.step { background: var(--card); border: 1px solid var(--ring); border-radius: 12px; padding: 14px; position: relative; }
+.step::before { counter-increment: s; content: counter(s); display: inline-grid; place-items: center; width: 26px; height: 26px;
+  border-radius: 50%; background: var(--accent); color: #fff; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+.step p { margin: 0; color: var(--ink-2); font-size: 14px; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; border-radius: 999px;
+  padding: 1px 9px 1px 4px; white-space: nowrap; border: 1px solid var(--ring); background: var(--surface); }
+.chip b { display: inline-grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; color: #fff; font-size: 11px; }
+.chip.ok { color: var(--good-ink); } .chip.ok b { background: var(--good); }
+.chip.rd { color: var(--warn-ink); } .chip.rd b { background: var(--warn); color: #3a2700; }
+.chip.rv { color: var(--serious-ink); } .chip.rv b { background: var(--serious); }
+.legend3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; margin-top: 14px; }
+.legend3 > div { background: var(--card); border: 1px solid var(--ring); border-radius: 12px; padding: 12px 14px; font-size: 14px; color: var(--ink-2); }
+.ex { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 16px; background: var(--card);
+  border: 1px solid var(--ring); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+.ex img { width: 100%; height: auto; border-radius: 8px; display: block; background: var(--surface); }
+.ex .meta { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: start; padding: 6px 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 13px; }
+td.num, th.num { text-align: end; font-variant-numeric: tabular-nums; }
+td.val { word-break: break-word; font-variant-numeric: tabular-nums; }
+.src { color: var(--muted); font-size: 12px; }
+.chart { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 14px 16px; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--ink-2); margin: 0 0 10px; }
+.legend > span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-inline-end: 6px; vertical-align: -1px; background: var(--c); }
+.brow { display: grid; grid-template-columns: minmax(110px, 190px) minmax(0, 1fr) 64px; gap: 10px; align-items: center; padding: 5px 0; }
+.brow .lab { font-size: 14px; color: var(--ink); }
+.brow .end { font-size: 13px; text-align: end; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.stack { display: flex; gap: 2px; height: 18px; }
+.stack i { display: block; height: 100%; cursor: default; min-width: 2px; }
+.stack i:first-child { border-start-start-radius: 4px; border-end-start-radius: 4px; }
+.stack i:last-child { border-start-end-radius: 4px; border-end-end-radius: 4px; }
+.seg-ok { background: var(--good); } .seg-rd { background: var(--warn); } .seg-rv { background: var(--serious); }
+.bars .brow { grid-template-columns: minmax(150px, 260px) minmax(0, 1fr) 64px; }
+.bar { height: 20px; background: var(--baseline); border-radius: 0 4px 4px 0; max-width: 100%; }
+html[dir="rtl"] .bar { border-radius: 4px 0 0 4px; }
+.bar.me { background: var(--accent); }
+.track { border-inline-start: 1px solid var(--axis); }
+details { margin-top: 10px; max-width: 100%; overflow-x: auto; }
+summary { cursor: pointer; color: var(--accent-ink); font-size: 14px; }
+.note { color: var(--muted); font-size: 13px; margin-top: 8px; }
+.limits li { margin-bottom: 8px; color: var(--ink-2); }
+.tech li { margin-bottom: 6px; color: var(--ink-2); font-size: 15px; }
+code { font-family: ui-monospace, Consolas, monospace; font-size: 13px; background: var(--surface); border: 1px solid var(--ring); border-radius: 5px; padding: 0 4px; }
+pre { background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: 13px; direction: ltr; text-align: left; }
+#tip { position: fixed; pointer-events: none; z-index: 10; background: var(--card); color: var(--ink); border: 1px solid var(--ring);
+  box-shadow: 0 6px 20px rgba(0,0,0,.18); border-radius: 8px; padding: 6px 10px; font-size: 13px; display: none; max-width: 260px; }
+footer { color: var(--muted); font-size: 13px; padding: 28px 0 40px; border-top: 1px solid var(--grid); }
+a { color: var(--accent-ink); }
+@media (max-width: 760px) {
+  .ex { grid-template-columns: 1fr; }
+  .brow, .bars .brow { grid-template-columns: 100px minmax(0, 1fr) 54px; }
+  .hide-sm { display: none; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="tooltip"></div>
+<div class="wrap">
+<header class="top">
+  <span class="kicker"><span class="t-en">Computer vision · OCR · Saudi e-invoicing</span><span class="t-ar">رؤية حاسوبية · قراءة النصوص · الفوترة الإلكترونية السعودية</span></span>
+  <button class="btn" id="lang" type="button">العربية</button>
+</header>
+
+<section class="first">
+  <h1><span class="t-en">Read IDs and invoices from a photo, and know which fields you can trust</span><span class="t-ar">اقرأ الهويات والفواتير من صورة، واعرف أي البيانات يمكنك الوثوق بها</span></h1>
+  <p class="lead"><span class="t-en">A reader for the documents Saudi businesses handle every day: passports, ID cards, visas, ZATCA tax invoices and boarding passes. Every field it returns carries a status: proven, read but unproven, or sent to a person.</span><span class="t-ar">قارئ للمستندات التي تتعامل معها الشركات السعودية يوميًا: جوازات السفر وبطاقات الهوية والتأشيرات وفواتير هيئة الزكاة والضريبة والجمارك وبطاقات صعود الطائرة. وكل معلومة يستخرجها تأتي بحالتها: مُثبتة، أو مقروءة دون إثبات، أو محالة لشخص يراجعها.</span></p>
+
+  <ul class="answer">
+    <li><b>100%</b> <span class="t-en">of the fields it marks as verified are correct,</span><span class="t-ar">من البيانات التي يعتبرها مُثبتة صحيحة،</span>
+      <span class="t-en">across 600 test documents that were never used while building it.</span><span class="t-ar">على 600 مستند اختبار لم تُستخدم أثناء بنائه.</span></li>
+    <li><b>64%</b> <span class="t-en">of all fields come back verified and can go straight into your system. The rest are flagged with the reason, so a person checks only those.</span><span class="t-ar">من كل البيانات تخرج مُثبتة ويمكن إدخالها في نظامك مباشرة. والباقي يُعلَّم مع السبب، فيراجع الموظف هذه فقط.</span></li>
+    <li><b>99.9%</b> <span class="t-en">of the passport fields it marked as verified on real phone video were correct (9,066 fields, 3,315 frames). Reading the whole MRZ exactly, it got 40.3% of frames: behind the commercial Dynamsoft SDK (48.3%), far ahead of the open-source tools (7.3% and 0.3%).</span><span class="t-ar">من بيانات الجوازات التي اعتبرها مُثبتة في فيديوهات جوال حقيقية كانت صحيحة (9,066 معلومة، 3,315 لقطة). أما قراءة السطرين الآليين كاملين بلا خطأ فنجح فيها في 40.3% من اللقطات: أقل من مكتبة Dynamsoft التجارية (48.3%)، وأعلى بكثير من الأدوات المفتوحة المصدر (7.3% و0.3%).</span></li>
+  </ul>
+
+  <div class="tiles">
+    <div class="tile"><div class="v">100%</div><div class="l"><span class="t-en">verified fields that are correct</span><span class="t-ar">من البيانات المُثبتة صحيحة</span></div>
+      <div class="n"><span class="t-en">3076 of 3076 fields</span><span class="t-ar">3076 من 3076 معلومة</span></div></div>
+    <div class="tile"><div class="v">64%</div><div class="l"><span class="t-en">fields that need no person</span><span class="t-ar">من البيانات لا تحتاج مراجعة</span></div>
+      <div class="n"><span class="t-en">4834 fields in total</span><span class="t-ar">4834 معلومة إجمالًا</span></div></div>
+    <div class="tile"><div class="v">99.7%</div><div class="l"><span class="t-en">documents sorted into the right type</span><span class="t-ar">من المستندات صُنّفت في نوعها الصحيح</span></div>
+      <div class="n"><span class="t-en">10 types, including “not a supported document”</span><span class="t-ar">10 أنواع، منها «مستند غير مدعوم»</span></div></div>
+    <div class="tile"><div class="v">4.3 <span class="t-en">s</span><span class="t-ar">ث</span></div><div class="l"><span class="t-en">to read one document</span><span class="t-ar">لقراءة المستند الواحد</span></div>
+      <div class="n"><span class="t-en">on average, across all 600</span><span class="t-ar">في المتوسط، على الـ 600 كلها</span></div></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="t-en">How it reads a document</span><span class="t-ar">كيف يقرأ المستند</span></h2>
+  <p class="sub"><span class="t-en">The reader relies first on what the documents themselves can prove. Passports, invoices and boarding passes all carry machine-readable data with error checks built in. The text recognition is cross-checked against that data.</span><span class="t-ar">يعتمد القارئ أولًا على ما تستطيع المستندات نفسها إثباته. فجوازات السفر والفواتير وبطاقات الصعود كلها تحمل بيانات مقروءة آليًا فيها وسائل تحقق مدمجة. ثم يُطابَق النص المقروء بهذه البيانات.</span></p>
+  <div class="steps">
+    <div class="step"><h3><span class="t-en">Flatten the photo</span><span class="t-ar">تسوية الصورة</span></h3><p><span class="t-en">Finds the document&#39;s four corners and straightens it, like a scanner app.</span><span class="t-ar">يجد زوايا المستند الأربع ويعدّله كأنه ممسوح ضوئيًا.</span></p></div>
+    <div class="step"><h3><span class="t-en">Decode barcodes</span><span class="t-ar">قراءة الباركود</span></h3><p><span class="t-en">ZATCA invoice QR codes and IATA boarding-pass barcodes. Both have built-in error correction.</span><span class="t-ar">رمز QR في فواتير الزكاة وباركود بطاقات الصعود، وكلاهما فيه تصحيح أخطاء مدمج.</span></p></div>
+    <div class="step"><h3><span class="t-en">Read the text twice</span><span class="t-ar">قراءة النص مرتين</span></h3><p><span class="t-en">Two open-source models: PP-OCRv6 for Latin text and numbers, PP-OCRv5 Arabic for Arabic.</span><span class="t-ar">نموذجان مفتوحا المصدر: PP-OCRv6 للنص اللاتيني والأرقام، وPP-OCRv5 للعربية.</span></p></div>
+    <div class="step"><h3><span class="t-en">Check against the standard</span><span class="t-ar">المطابقة مع المعيار</span></h3><p><span class="t-en">Passport check digits (ICAO 9303), ZATCA QR values, VAT = 15%, line items adding up.</span><span class="t-ar">أرقام التحقق في الجواز (ICAO 9303)، وقيم QR الضريبي، والضريبة = 15%، ومجموع البنود.</span></p></div>
+    <div class="step"><h3><span class="t-en">Give every field a status</span><span class="t-ar">حالة لكل معلومة</span></h3><p><span class="t-en">Verified, read or review, with the reason. Nothing uncertain is passed off as certain.</span><span class="t-ar">مُثبتة أو مقروءة أو للمراجعة، مع السبب. لا يُقدَّم شيء غير مؤكد على أنه مؤكد.</span></p></div>
+  </div>
+  <div class="legend3">
+    <div><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span> <span class="t-en">Proven independently: a check digit, an error-corrected barcode, the invoice arithmetic, or two separate reads that agree.</span><span class="t-ar">مُثبتة بشكل مستقل: رقم تحقق، أو باركود مصحَّح الأخطاء، أو حساب الفاتورة، أو قراءتان منفصلتان متطابقتان.</span></div>
+    <div><span class="chip rd" title="read"><b aria-hidden="true">?</b><span class="t-en">Read</span><span class="t-ar">مقروء</span></span> <span class="t-en">Read once and looks right, but nothing confirms it. A person glances at it.</span><span class="t-ar">قُرئت مرة وتبدو صحيحة، لكن لا شيء يؤكدها. يلقي الموظف نظرة عليها.</span></div>
+    <div><span class="chip rv" title="review"><b aria-hidden="true">!</b><span class="t-en">Review</span><span class="t-ar">مراجعة</span></span> <span class="t-en">A check failed, two readings disagree, or the field was not found.</span><span class="t-ar">فشل تحقق، أو اختلفت قراءتان، أو لم توجد المعلومة.</span></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="t-en">Examples from the test set</span><span class="t-ar">أمثلة من مجموعة الاختبار</span></h2>
+  <p class="sub"><span class="t-en">Real output on test images. Every document is a synthetic SPECIMEN: the people, companies and VAT numbers are invented, and the passports are issued by “Utopia”, the specimen country of the ICAO standard.</span><span class="t-ar">نتائج فعلية على صور الاختبار. كل المستندات نماذج تجريبية (SPECIMEN): الأشخاص والشركات والأرقام الضريبية مختلَقة، والجوازات صادرة من «يوتوبيا»، الدولة التجريبية في معيار ICAO.</span></p>
+  
+  <div class="ex">
+    <div><img src="examples/test_passport_005.jpg" alt="Passport, phone photo"></div>
+    <div>
+      <h3><span class="t-en">Passport</span><span class="t-ar">جواز سفر</span></h3>
+      <div class="meta"><span class="t-en">Phone photo</span><span class="t-ar">صورة بالجوال</span> · <span class="t-en">a layout it never saw during development</span><span class="t-ar">تصميم لم يره أثناء التطوير</span> · 5.06 <span class="t-en">s</span><span class="t-ar">ث</span></div>
+      <table>
+        <thead><tr><th><span class="t-en">Field</span><span class="t-ar">المعلومة</span></th><th><span class="t-en">Value</span><span class="t-ar">القيمة</span></th><th><span class="t-en">Status</span><span class="t-ar">الحالة</span></th><th class="hide-sm"><span class="t-en">Source</span><span class="t-ar">المصدر</span></th></tr></thead>
+        <tbody>
+        <tr><td><span class="t-en">Document number</span><span class="t-ar">رقم الوثيقة</span></td><td class="val" dir="auto">Y80188103</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">MRZ</span><span class="t-ar">المنطقة المقروءة آليًا</span></td></tr><tr><td><span class="t-en">Surname</span><span class="t-ar">اللقب</span></td><td class="val" dir="auto">ALRASHEED</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">MRZ</span><span class="t-ar">المنطقة المقروءة آليًا</span></td></tr><tr><td><span class="t-en">Given names</span><span class="t-ar">الاسم</span></td><td class="val" dir="auto">MOHAMMED FAHAD</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">MRZ</span><span class="t-ar">المنطقة المقروءة آليًا</span></td></tr><tr><td><span class="t-en">Nationality</span><span class="t-ar">الجنسية</span></td><td class="val" dir="auto">KWT</td><td><span class="chip rd" title="read"><b aria-hidden="true">?</b><span class="t-en">Read</span><span class="t-ar">مقروء</span></span></td>
+          <td class="hide-sm src"><span class="t-en">MRZ</span><span class="t-ar">المنطقة المقروءة آليًا</span></td></tr><tr><td><span class="t-en">Date of birth</span><span class="t-ar">تاريخ الميلاد</span></td><td class="val" dir="auto">2004-10-01</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">MRZ</span><span class="t-ar">المنطقة المقروءة آليًا</span></td></tr><tr><td><span class="t-en">Sex</span><span class="t-ar">الجنس</span></td><td class="val" dir="auto">M</td><td><span class="chip rd" title="read"><b aria-hidden="true">?</b><span class="t-en">Read</span><span class="t-ar">مقروء</span></span></td>
+          <td class="hide-sm src"><span class="t-en">MRZ</span><span class="t-ar">المنطقة المقروءة آليًا</span></td></tr><tr><td><span class="t-en">Expiry date</span><span class="t-ar">تاريخ الانتهاء</span></td><td class="val" dir="auto">2035-03-03</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">MRZ</span><span class="t-ar">المنطقة المقروءة آليًا</span></td></tr><tr><td><span class="t-en">Issuing state</span><span class="t-ar">جهة الإصدار</span></td><td class="val" dir="auto">UTO</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">MRZ</span><span class="t-ar">المنطقة المقروءة آليًا</span></td></tr><tr><td><span class="t-en">Name in Arabic</span><span class="t-ar">الاسم بالعربية</span></td><td class="val" dir="auto">محمد فهد الرشيد</td><td><span class="chip rd" title="read"><b aria-hidden="true">?</b><span class="t-en">Read</span><span class="t-ar">مقروء</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Printed text</span><span class="t-ar">النص المطبوع</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <div class="ex">
+    <div><img src="examples/test_tax_invoice_014.jpg" alt="Tax invoice, phone photo"></div>
+    <div>
+      <h3><span class="t-en">Tax invoice</span><span class="t-ar">فاتورة ضريبية</span></h3>
+      <div class="meta"><span class="t-en">Phone photo</span><span class="t-ar">صورة بالجوال</span> · <span class="t-en">a layout it never saw during development</span><span class="t-ar">تصميم لم يره أثناء التطوير</span> · 12.99 <span class="t-en">s</span><span class="t-ar">ث</span></div>
+      <table>
+        <thead><tr><th><span class="t-en">Field</span><span class="t-ar">المعلومة</span></th><th><span class="t-en">Value</span><span class="t-ar">القيمة</span></th><th><span class="t-en">Status</span><span class="t-ar">الحالة</span></th><th class="hide-sm"><span class="t-en">Source</span><span class="t-ar">المصدر</span></th></tr></thead>
+        <tbody>
+        <tr><td><span class="t-en">Invoice number</span><span class="t-ar">رقم الفاتورة</span></td><td class="val" dir="auto">F430280</td><td><span class="chip rd" title="read"><b aria-hidden="true">?</b><span class="t-en">Read</span><span class="t-ar">مقروء</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Printed text</span><span class="t-ar">النص المطبوع</span></td></tr><tr><td><span class="t-en">Seller</span><span class="t-ar">البائع</span></td><td class="val" dir="auto">شركة مدار للخدمات اللوجستية</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">ZATCA QR</span><span class="t-ar">رمز QR الضريبي</span></td></tr><tr><td><span class="t-en">Seller VAT no.</span><span class="t-ar">الرقم الضريبي للبائع</span></td><td class="val" dir="auto">380770155647713</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">ZATCA QR</span><span class="t-ar">رمز QR الضريبي</span></td></tr><tr><td><span class="t-en">Issue date</span><span class="t-ar">تاريخ الإصدار</span></td><td class="val" dir="auto">2026-08-06</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">ZATCA QR</span><span class="t-ar">رمز QR الضريبي</span></td></tr><tr><td><span class="t-en">Total</span><span class="t-ar">الإجمالي</span></td><td class="val" dir="auto">28269.54</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">ZATCA QR</span><span class="t-ar">رمز QR الضريبي</span></td></tr><tr><td><span class="t-en">VAT 15%</span><span class="t-ar">ضريبة القيمة المضافة</span></td><td class="val" dir="auto">3687.34</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">ZATCA QR</span><span class="t-ar">رمز QR الضريبي</span></td></tr><tr><td><span class="t-en">Subtotal</span><span class="t-ar">الإجمالي قبل الضريبة</span></td><td class="val" dir="auto">24582.20</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">ZATCA QR</span><span class="t-ar">رمز QR الضريبي</span></td></tr><tr><td><span class="t-en">Buyer VAT no.</span><span class="t-ar">الرقم الضريبي للمشتري</span></td><td class="val" dir="auto">—</td><td><span class="chip rv" title="review"><b aria-hidden="true">!</b><span class="t-en">Review</span><span class="t-ar">مراجعة</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Printed text</span><span class="t-ar">النص المطبوع</span></td></tr><tr><td><span class="t-en">Line items</span><span class="t-ar">بنود الفاتورة</span></td><td class="val" dir="auto">—</td><td><span class="chip rv" title="review"><b aria-hidden="true">!</b><span class="t-en">Review</span><span class="t-ar">مراجعة</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Printed text</span><span class="t-ar">النص المطبوع</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <div class="ex">
+    <div><img src="examples/test_simplified_tax_invoice_004.jpg" alt="Simplified tax invoice, scanned"></div>
+    <div>
+      <h3><span class="t-en">Simplified tax invoice</span><span class="t-ar">فاتورة ضريبية مبسطة</span></h3>
+      <div class="meta"><span class="t-en">Scanned</span><span class="t-ar">ممسوح ضوئيًا</span> · 4.24 <span class="t-en">s</span><span class="t-ar">ث</span></div>
+      <table>
+        <thead><tr><th><span class="t-en">Field</span><span class="t-ar">المعلومة</span></th><th><span class="t-en">Value</span><span class="t-ar">القيمة</span></th><th><span class="t-en">Status</span><span class="t-ar">الحالة</span></th><th class="hide-sm"><span class="t-en">Source</span><span class="t-ar">المصدر</span></th></tr></thead>
+        <tbody>
+        <tr><td><span class="t-en">Invoice number</span><span class="t-ar">رقم الفاتورة</span></td><td class="val" dir="auto">TX222652</td><td><span class="chip rd" title="read"><b aria-hidden="true">?</b><span class="t-en">Read</span><span class="t-ar">مقروء</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Printed text</span><span class="t-ar">النص المطبوع</span></td></tr><tr><td><span class="t-en">Seller</span><span class="t-ar">البائع</span></td><td class="val" dir="auto">شركة النخبة للفنادق</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">ZATCA QR</span><span class="t-ar">رمز QR الضريبي</span></td></tr><tr><td><span class="t-en">Seller VAT no.</span><span class="t-ar">الرقم الضريبي للبائع</span></td><td class="val" dir="auto">371318865576183</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">ZATCA QR</span><span class="t-ar">رمز QR الضريبي</span></td></tr><tr><td><span class="t-en">Issue date</span><span class="t-ar">تاريخ الإصدار</span></td><td class="val" dir="auto">2025-04-25</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">ZATCA QR</span><span class="t-ar">رمز QR الضريبي</span></td></tr><tr><td><span class="t-en">Total</span><span class="t-ar">الإجمالي</span></td><td class="val" dir="auto">7389.33</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">ZATCA QR</span><span class="t-ar">رمز QR الضريبي</span></td></tr><tr><td><span class="t-en">VAT 15%</span><span class="t-ar">ضريبة القيمة المضافة</span></td><td class="val" dir="auto">963.83</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">ZATCA QR</span><span class="t-ar">رمز QR الضريبي</span></td></tr><tr><td><span class="t-en">Subtotal</span><span class="t-ar">الإجمالي قبل الضريبة</span></td><td class="val" dir="auto">6425.50</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">ZATCA QR</span><span class="t-ar">رمز QR الضريبي</span></td></tr><tr><td><span class="t-en">Line items</span><span class="t-ar">بنود الفاتورة</span></td><td class="val" dir="auto">4 lines</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Arithmetic</span><span class="t-ar">الحساب</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <div class="ex">
+    <div><img src="examples/test_id_card_td1_004.jpg" alt="ID card, phone photo"></div>
+    <div>
+      <h3><span class="t-en">ID card</span><span class="t-ar">بطاقة هوية</span></h3>
+      <div class="meta"><span class="t-en">Phone photo</span><span class="t-ar">صورة بالجوال</span> · 3.7 <span class="t-en">s</span><span class="t-ar">ث</span></div>
+      <table>
+        <thead><tr><th><span class="t-en">Field</span><span class="t-ar">المعلومة</span></th><th><span class="t-en">Value</span><span class="t-ar">القيمة</span></th><th><span class="t-en">Status</span><span class="t-ar">الحالة</span></th><th class="hide-sm"><span class="t-en">Source</span><span class="t-ar">المصدر</span></th></tr></thead>
+        <tbody>
+        <tr><td><span class="t-en">Document number</span><span class="t-ar">رقم الوثيقة</span></td><td class="val" dir="auto">NU5613842</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">MRZ</span><span class="t-ar">المنطقة المقروءة آليًا</span></td></tr><tr><td><span class="t-en">Surname</span><span class="t-ar">اللقب</span></td><td class="val" dir="auto">BRETON</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">MRZ</span><span class="t-ar">المنطقة المقروءة آليًا</span></td></tr><tr><td><span class="t-en">Given names</span><span class="t-ar">الاسم</span></td><td class="val" dir="auto">LAURENT</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">MRZ</span><span class="t-ar">المنطقة المقروءة آليًا</span></td></tr><tr><td><span class="t-en">Nationality</span><span class="t-ar">الجنسية</span></td><td class="val" dir="auto">FRA</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">MRZ</span><span class="t-ar">المنطقة المقروءة آليًا</span></td></tr><tr><td><span class="t-en">Date of birth</span><span class="t-ar">تاريخ الميلاد</span></td><td class="val" dir="auto">2003-09-01</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">MRZ</span><span class="t-ar">المنطقة المقروءة آليًا</span></td></tr><tr><td><span class="t-en">Sex</span><span class="t-ar">الجنس</span></td><td class="val" dir="auto">M</td><td><span class="chip rd" title="read"><b aria-hidden="true">?</b><span class="t-en">Read</span><span class="t-ar">مقروء</span></span></td>
+          <td class="hide-sm src"><span class="t-en">MRZ</span><span class="t-ar">المنطقة المقروءة آليًا</span></td></tr><tr><td><span class="t-en">Expiry date</span><span class="t-ar">تاريخ الانتهاء</span></td><td class="val" dir="auto">2024-01-13</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">MRZ</span><span class="t-ar">المنطقة المقروءة آليًا</span></td></tr><tr><td><span class="t-en">Issuing state</span><span class="t-ar">جهة الإصدار</span></td><td class="val" dir="auto">UTO</td><td><span class="chip rd" title="read"><b aria-hidden="true">?</b><span class="t-en">Read</span><span class="t-ar">مقروء</span></span></td>
+          <td class="hide-sm src"><span class="t-en">MRZ</span><span class="t-ar">المنطقة المقروءة آليًا</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <div class="ex">
+    <div><img src="examples/test_boarding_pass_000.jpg" alt="Boarding pass, phone photo"></div>
+    <div>
+      <h3><span class="t-en">Boarding pass</span><span class="t-ar">بطاقة صعود الطائرة</span></h3>
+      <div class="meta"><span class="t-en">Phone photo</span><span class="t-ar">صورة بالجوال</span> · 2.21 <span class="t-en">s</span><span class="t-ar">ث</span></div>
+      <table>
+        <thead><tr><th><span class="t-en">Field</span><span class="t-ar">المعلومة</span></th><th><span class="t-en">Value</span><span class="t-ar">القيمة</span></th><th><span class="t-en">Status</span><span class="t-ar">الحالة</span></th><th class="hide-sm"><span class="t-en">Source</span><span class="t-ar">المصدر</span></th></tr></thead>
+        <tbody>
+        <tr><td><span class="t-en">Passenger</span><span class="t-ar">المسافر</span></td><td class="val" dir="auto">ALZAHRANI/NASSER</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Barcode</span><span class="t-ar">الباركود</span></td></tr><tr><td><span class="t-en">Booking reference</span><span class="t-ar">رقم الحجز</span></td><td class="val" dir="auto">Z7X8R6</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Barcode</span><span class="t-ar">الباركود</span></td></tr><tr><td><span class="t-en">From</span><span class="t-ar">من</span></td><td class="val" dir="auto">RUH</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Barcode</span><span class="t-ar">الباركود</span></td></tr><tr><td><span class="t-en">To</span><span class="t-ar">إلى</span></td><td class="val" dir="auto">KWI</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Barcode</span><span class="t-ar">الباركود</span></td></tr><tr><td><span class="t-en">Airline code</span><span class="t-ar">رمز شركة الطيران</span></td><td class="val" dir="auto">NQ</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Barcode</span><span class="t-ar">الباركود</span></td></tr><tr><td><span class="t-en">Flight</span><span class="t-ar">رقم الرحلة</span></td><td class="val" dir="auto">1669</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Barcode</span><span class="t-ar">الباركود</span></td></tr><tr><td><span class="t-en">Day of year</span><span class="t-ar">يوم الرحلة في السنة</span></td><td class="val" dir="auto">247</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Barcode</span><span class="t-ar">الباركود</span></td></tr><tr><td><span class="t-en">Seat</span><span class="t-ar">المقعد</span></td><td class="val" dir="auto">34C</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Barcode</span><span class="t-ar">الباركود</span></td></tr><tr><td><span class="t-en">Check-in no.</span><span class="t-ar">رقم تسجيل الوصول</span></td><td class="val" dir="auto">158</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Barcode</span><span class="t-ar">الباركود</span></td></tr><tr><td><span class="t-en">Cabin</span><span class="t-ar">الدرجة</span></td><td class="val" dir="auto">B</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Barcode</span><span class="t-ar">الباركود</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <div class="ex">
+    <div><img src="examples/test_credit_note_011.jpg" alt="Credit note, difficult photo"></div>
+    <div>
+      <h3><span class="t-en">Credit note</span><span class="t-ar">إشعار دائن</span></h3>
+      <div class="meta"><span class="t-en">Difficult photo</span><span class="t-ar">صورة صعبة</span> · <span class="t-en">a layout it never saw during development</span><span class="t-ar">تصميم لم يره أثناء التطوير</span> · 3.49 <span class="t-en">s</span><span class="t-ar">ث</span></div>
+      <table>
+        <thead><tr><th><span class="t-en">Field</span><span class="t-ar">المعلومة</span></th><th><span class="t-en">Value</span><span class="t-ar">القيمة</span></th><th><span class="t-en">Status</span><span class="t-ar">الحالة</span></th><th class="hide-sm"><span class="t-en">Source</span><span class="t-ar">المصدر</span></th></tr></thead>
+        <tbody>
+        <tr><td><span class="t-en">Invoice number</span><span class="t-ar">رقم الفاتورة</span></td><td class="val" dir="auto">CR-2026-117563</td><td><span class="chip rd" title="read"><b aria-hidden="true">?</b><span class="t-en">Read</span><span class="t-ar">مقروء</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Printed text</span><span class="t-ar">النص المطبوع</span></td></tr><tr><td><span class="t-en">Original invoice</span><span class="t-ar">الفاتورة الأصلية</span></td><td class="val" dir="auto">—</td><td><span class="chip rv" title="review"><b aria-hidden="true">!</b><span class="t-en">Review</span><span class="t-ar">مراجعة</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Printed text</span><span class="t-ar">النص المطبوع</span></td></tr><tr><td><span class="t-en">Seller</span><span class="t-ar">البائع</span></td><td class="val" dir="auto">شركة الياسمين للأغذية</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">ZATCA QR</span><span class="t-ar">رمز QR الضريبي</span></td></tr><tr><td><span class="t-en">Seller VAT no.</span><span class="t-ar">الرقم الضريبي للبائع</span></td><td class="val" dir="auto">303184436244223</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">ZATCA QR</span><span class="t-ar">رمز QR الضريبي</span></td></tr><tr><td><span class="t-en">Issue date</span><span class="t-ar">تاريخ الإصدار</span></td><td class="val" dir="auto">2026-05-09</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">ZATCA QR</span><span class="t-ar">رمز QR الضريبي</span></td></tr><tr><td><span class="t-en">Total</span><span class="t-ar">الإجمالي</span></td><td class="val" dir="auto">185.73</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">ZATCA QR</span><span class="t-ar">رمز QR الضريبي</span></td></tr><tr><td><span class="t-en">VAT 15%</span><span class="t-ar">ضريبة القيمة المضافة</span></td><td class="val" dir="auto">24.23</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">ZATCA QR</span><span class="t-ar">رمز QR الضريبي</span></td></tr><tr><td><span class="t-en">Subtotal</span><span class="t-ar">الإجمالي قبل الضريبة</span></td><td class="val" dir="auto">161.50</td><td><span class="chip ok" title="verified"><b aria-hidden="true">✓</b><span class="t-en">Verified</span><span class="t-ar">مُثبت</span></span></td>
+          <td class="hide-sm src"><span class="t-en">ZATCA QR</span><span class="t-ar">رمز QR الضريبي</span></td></tr><tr><td><span class="t-en">Buyer VAT no.</span><span class="t-ar">الرقم الضريبي للمشتري</span></td><td class="val" dir="auto">321403559142113</td><td><span class="chip rd" title="read"><b aria-hidden="true">?</b><span class="t-en">Read</span><span class="t-ar">مقروء</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Printed text</span><span class="t-ar">النص المطبوع</span></td></tr><tr><td><span class="t-en">Line items</span><span class="t-ar">بنود الفاتورة</span></td><td class="val" dir="auto">—</td><td><span class="chip rv" title="review"><b aria-hidden="true">!</b><span class="t-en">Review</span><span class="t-ar">مراجعة</span></span></td>
+          <td class="hide-sm src"><span class="t-en">Printed text</span><span class="t-ar">النص المطبوع</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+</section>
+
+<section>
+  <h2><span class="t-en">Results by document type</span><span class="t-ar">النتائج حسب نوع المستند</span></h2>
+  <p class="sub"><span class="t-en">600 test documents, 60 of each type: 30% scans, 45% phone photos, 25% difficult photos (tilted, blurred, shadowed, with glare). The bar shows what share of fields came back verified, read or for review; the number on the right is the share of verified fields that are correct.</span><span class="t-ar">600 مستند اختبار، 60 من كل نوع: 30% ممسوحة ضوئيًا، و45% صور بالجوال، و25% صور صعبة (مائلة ومهزوزة وفيها ظل ولمعان). يوضح الشريط نسبة البيانات المُثبتة والمقروءة والمحالة للمراجعة، والرقم على اليمين نسبة البيانات المُثبتة الصحيحة.</span></p>
+  <div class="chart">
+    <div class="legend"><span style="--c: var(--good)"><span class="t-en">Verified</span><span class="t-ar">مُثبتة</span></span><span style="--c: var(--warn)"><span class="t-en">Read</span><span class="t-ar">مقروءة</span></span><span style="--c: var(--serious)"><span class="t-en">Review</span><span class="t-ar">مراجعة</span></span></div>
+    
+    <div class="brow"><div class="lab"><span class="t-en">Boarding pass</span><span class="t-ar">بطاقة صعود الطائرة</span></div>
+      <div class="stack">
+        <i class="seg-ok" style="flex: 540" data-tip="540 / 600"></i>
+        <i class="seg-rd" style="flex: 4" data-tip="4 / 600"></i>
+        <i class="seg-rv" style="flex: 56" data-tip="56 / 600"></i>
+      </div>
+      <div class="end">100%</div></div>
+    
+    <div class="brow"><div class="lab"><span class="t-en">Credit note</span><span class="t-ar">إشعار دائن</span></div>
+      <div class="stack">
+        <i class="seg-ok" style="flex: 292" data-tip="292 / 593"></i>
+        <i class="seg-rd" style="flex: 206" data-tip="206 / 593"></i>
+        <i class="seg-rv" style="flex: 95" data-tip="95 / 593"></i>
+      </div>
+      <div class="end">100%</div></div>
+    
+    <div class="brow"><div class="lab"><span class="t-en">Debit note</span><span class="t-ar">إشعار مدين</span></div>
+      <div class="stack">
+        <i class="seg-ok" style="flex: 305" data-tip="305 / 600"></i>
+        <i class="seg-rd" style="flex: 206" data-tip="206 / 600"></i>
+        <i class="seg-rv" style="flex: 89" data-tip="89 / 600"></i>
+      </div>
+      <div class="end">100%</div></div>
+    
+    <div class="brow"><div class="lab"><span class="t-en">ID card</span><span class="t-ar">بطاقة هوية</span></div>
+      <div class="stack">
+        <i class="seg-ok" style="flex: 270" data-tip="270 / 513"></i>
+        <i class="seg-rd" style="flex: 125" data-tip="125 / 513"></i>
+        <i class="seg-rv" style="flex: 118" data-tip="118 / 513"></i>
+      </div>
+      <div class="end">100%</div></div>
+    
+    <div class="brow"><div class="lab"><span class="t-en">Travel document (TD2)</span><span class="t-ar">وثيقة سفر (TD2)</span></div>
+      <div class="stack">
+        <i class="seg-ok" style="flex: 353" data-tip="353 / 514"></i>
+        <i class="seg-rd" style="flex: 155" data-tip="155 / 514"></i>
+        <i class="seg-rv" style="flex: 6" data-tip="6 / 514"></i>
+      </div>
+      <div class="end">100%</div></div>
+    
+    <div class="brow"><div class="lab"><span class="t-en">Passport</span><span class="t-ar">جواز سفر</span></div>
+      <div class="stack">
+        <i class="seg-ok" style="flex: 350" data-tip="350 / 514"></i>
+        <i class="seg-rd" style="flex: 152" data-tip="152 / 514"></i>
+        <i class="seg-rv" style="flex: 12" data-tip="12 / 514"></i>
+      </div>
+      <div class="end">100%</div></div>
+    
+    <div class="brow"><div class="lab"><span class="t-en">Simplified tax invoice</span><span class="t-ar">فاتورة ضريبية مبسطة</span></div>
+      <div class="stack">
+        <i class="seg-ok" style="flex: 308" data-tip="308 / 480"></i>
+        <i class="seg-rd" style="flex: 104" data-tip="104 / 480"></i>
+        <i class="seg-rv" style="flex: 68" data-tip="68 / 480"></i>
+      </div>
+      <div class="end">100%</div></div>
+    
+    <div class="brow"><div class="lab"><span class="t-en">Tax invoice</span><span class="t-ar">فاتورة ضريبية</span></div>
+      <div class="stack">
+        <i class="seg-ok" style="flex: 327" data-tip="327 / 540"></i>
+        <i class="seg-rd" style="flex: 141" data-tip="141 / 540"></i>
+        <i class="seg-rv" style="flex: 72" data-tip="72 / 540"></i>
+      </div>
+      <div class="end">100%</div></div>
+    
+    <div class="brow"><div class="lab"><span class="t-en">Visa</span><span class="t-ar">تأشيرة</span></div>
+      <div class="stack">
+        <i class="seg-ok" style="flex: 331" data-tip="331 / 480"></i>
+        <i class="seg-rd" style="flex: 129" data-tip="129 / 480"></i>
+        <i class="seg-rv" style="flex: 20" data-tip="20 / 480"></i>
+      </div>
+      <div class="end">100%</div></div>
+    
+    <details><summary><span class="t-en">Show as a table</span><span class="t-ar">اعرض كجدول</span></summary>
+      <table><thead><tr><th><span class="t-en">Type</span><span class="t-ar">النوع</span></th><th class="num"><span class="t-en">Fields</span><span class="t-ar">البيانات</span></th><th class="num"><span class="t-en">Verified</span><span class="t-ar">مُثبتة</span></th>
+        <th class="num"><span class="t-en">Verified correct</span><span class="t-ar">المُثبتة الصحيحة</span></th><th class="num"><span class="t-en">Read</span><span class="t-ar">مقروءة</span></th><th class="num"><span class="t-en">Read correct</span><span class="t-ar">المقروءة الصحيحة</span></th><th class="num"><span class="t-en">Review</span><span class="t-ar">مراجعة</span></th></tr></thead>
+      <tbody><tr><td><span class="t-en">Boarding pass</span><span class="t-ar">بطاقة صعود الطائرة</span></td><td class="num">600</td><td class="num">540</td>
+        <td class="num">100%</td><td class="num">4</td><td class="num">100%</td><td class="num">56</td></tr><tr><td><span class="t-en">Credit note</span><span class="t-ar">إشعار دائن</span></td><td class="num">593</td><td class="num">292</td>
+        <td class="num">100%</td><td class="num">206</td><td class="num">84.0%</td><td class="num">95</td></tr><tr><td><span class="t-en">Debit note</span><span class="t-ar">إشعار مدين</span></td><td class="num">600</td><td class="num">305</td>
+        <td class="num">100%</td><td class="num">206</td><td class="num">88.3%</td><td class="num">89</td></tr><tr><td><span class="t-en">ID card</span><span class="t-ar">بطاقة هوية</span></td><td class="num">513</td><td class="num">270</td>
+        <td class="num">100%</td><td class="num">125</td><td class="num">94.4%</td><td class="num">118</td></tr><tr><td><span class="t-en">Travel document (TD2)</span><span class="t-ar">وثيقة سفر (TD2)</span></td><td class="num">514</td><td class="num">353</td>
+        <td class="num">100%</td><td class="num">155</td><td class="num">96.1%</td><td class="num">6</td></tr><tr><td><span class="t-en">Passport</span><span class="t-ar">جواز سفر</span></td><td class="num">514</td><td class="num">350</td>
+        <td class="num">100%</td><td class="num">152</td><td class="num">90.8%</td><td class="num">12</td></tr><tr><td><span class="t-en">Simplified tax invoice</span><span class="t-ar">فاتورة ضريبية مبسطة</span></td><td class="num">480</td><td class="num">308</td>
+        <td class="num">100%</td><td class="num">104</td><td class="num">86.5%</td><td class="num">68</td></tr><tr><td><span class="t-en">Tax invoice</span><span class="t-ar">فاتورة ضريبية</span></td><td class="num">540</td><td class="num">327</td>
+        <td class="num">100%</td><td class="num">141</td><td class="num">89.4%</td><td class="num">72</td></tr><tr><td><span class="t-en">Visa</span><span class="t-ar">تأشيرة</span></td><td class="num">480</td><td class="num">331</td>
+        <td class="num">100%</td><td class="num">129</td><td class="num">100%</td><td class="num">20</td></tr></tbody></table>
+    </details>
+  </div>
+
+  <h3 style="margin-top:26px"><span class="t-en">By image quality</span><span class="t-ar">حسب جودة الصورة</span></h3>
+  <div class="chart">
+    
+    <div class="brow"><div class="lab"><span class="t-en">Scanned</span><span class="t-ar">ممسوح ضوئيًا</span></div>
+      <div class="stack">
+        <i class="seg-ok" style="flex: 1041" data-tip="1041 / 1450"></i>
+        <i class="seg-rd" style="flex: 333" data-tip="333 / 1450"></i>
+        <i class="seg-rv" style="flex: 76" data-tip="76 / 1450"></i>
+      </div>
+      <div class="end">100%</div></div>
+    
+    <div class="brow"><div class="lab"><span class="t-en">Phone photo</span><span class="t-ar">صورة بالجوال</span></div>
+      <div class="stack">
+        <i class="seg-ok" style="flex: 1521" data-tip="1521 / 2174"></i>
+        <i class="seg-rd" style="flex: 507" data-tip="507 / 2174"></i>
+        <i class="seg-rv" style="flex: 146" data-tip="146 / 2174"></i>
+      </div>
+      <div class="end">100%</div></div>
+    
+    <div class="brow"><div class="lab"><span class="t-en">Difficult photo</span><span class="t-ar">صورة صعبة</span></div>
+      <div class="stack">
+        <i class="seg-ok" style="flex: 514" data-tip="514 / 1210"></i>
+        <i class="seg-rd" style="flex: 382" data-tip="382 / 1210"></i>
+        <i class="seg-rv" style="flex: 314" data-tip="314 / 1210"></i>
+      </div>
+      <div class="end">100%</div></div>
+    
+    <p class="note"><span class="t-en">Worse photos mean fewer verified fields, not more wrong ones: the reader sends what it cannot prove to a person.</span><span class="t-ar">كلما ساءت الصورة قلّت البيانات المُثبتة، لا زادت الأخطاء: القارئ يحيل ما لا يستطيع إثباته إلى شخص.</span></p>
+  </div>
+
+  
+  <h3 style="margin-top:26px"><span class="t-en">Layouts it never saw</span><span class="t-ar">تصميمات لم يرها</span></h3>
+  <p class="sub"><span class="t-en">One design per family (a passport, an Arabic-only invoice, a mobile boarding pass) was kept out of development and used only in this test.</span><span class="t-ar">تصميم واحد من كل عائلة (جواز سفر، وفاتورة بالعربية فقط، وبطاقة صعود للجوال) أُبعد عن التطوير واستُخدم في هذا الاختبار فقط.</span></p>
+  <table style="max-width:640px"><thead><tr><th></th><th class="num"><span class="t-en">Fields</span><span class="t-ar">البيانات</span></th><th class="num"><span class="t-en">Verified correct</span><span class="t-ar">المُثبتة الصحيحة</span></th><th class="num"><span class="t-en">Need no person</span><span class="t-ar">لا تحتاج مراجعة</span></th></tr></thead>
+    <tbody><tr><td><span class="t-en">Designs used in development</span><span class="t-ar">تصميمات استُخدمت في التطوير</span></td><td class="num">3719</td><td class="num">100%</td><td class="num">64%</td></tr>
+    <tr><td><span class="t-en">Designs never seen</span><span class="t-ar">تصميمات لم يرها</span></td><td class="num">1115</td><td class="num">100%</td><td class="num">61%</td></tr></tbody></table>
+  
+</section>
+
+
+<section>
+  <h2><span class="t-en">Real photos: passports filmed with a phone</span><span class="t-ar">صور حقيقية: جوازات سفر مصوّرة بالجوال</span></h2>
+  <p class="sub"><span class="t-en">Synthetic tests can flatter. So the passport reader was also scored on MIDV-500, a public set of phone videos of real specimen passports from 12 countries, filmed on a table, in hand, on a keyboard, in clutter and partly out of frame. The comparison uses Dynamsoft&#39;s published 3,315-frame benchmark and its scores.</span><span class="t-ar">الاختبارات الاصطناعية قد تجامل. لذلك قِيس قارئ الجوازات أيضًا على MIDV-500، وهي مجموعة عامة من فيديوهات جوال لجوازات سفر نموذجية حقيقية من 12 دولة، مصوّرة على طاولة وفي اليد وعلى لوحة مفاتيح ووسط أغراض وخارج الإطار جزئيًا. المقارنة على معيار Dynamsoft المنشور من 3,315 لقطة وبنتائجه.</span></p>
+  <div class="chart bars">
+    <div class="note" style="margin:0 0 8px"><span class="t-en">Frames where the whole MRZ (88 characters) is read exactly right</span><span class="t-ar">اللقطات التي قُرئ فيها السطران الآليان (88 حرفًا) بلا أي خطأ</span></div>
+    
+    
+    
+    <div class="brow"><div class="lab"><span class="t-en">This reader (open source)</span><span class="t-ar">هذا القارئ (مفتوح المصدر)</span></div>
+      <div class="track"><div class="bar me" style="width: 40.3%" data-tip="40.3%"></div></div>
+      <div class="end">40.3%</div></div>
+    
+    <div class="brow"><div class="lab"><span class="t-en">Dynamsoft Capture Vision (commercial)</span><span class="t-ar">Dynamsoft Capture Vision (commercial)</span></div>
+      <div class="track"><div class="bar" style="width: 48.3%" data-tip="48.3%"></div></div>
+      <div class="end">48.3%</div></div>
+    
+    <div class="brow"><div class="lab"><span class="t-en">FastMRZ (open source)</span><span class="t-ar">FastMRZ (open source)</span></div>
+      <div class="track"><div class="bar" style="width: 7.3%" data-tip="7.3%"></div></div>
+      <div class="end">7.3%</div></div>
+    
+    <div class="brow"><div class="lab"><span class="t-en">PassportEye (open source)</span><span class="t-ar">PassportEye (open source)</span></div>
+      <div class="track"><div class="bar" style="width: 0.3%" data-tip="0.3%"></div></div>
+      <div class="end">0.3%</div></div>
+    
+  </div>
+  <div class="tiles" style="margin-top:14px">
+    <div class="tile"><div class="v">99.4%</div><div class="l"><span class="t-en">of frames it marks as fully proven have all five key fields right</span><span class="t-ar">من اللقطات التي يعتبرها مُثبتة بالكامل بياناتها الخمس الأساسية صحيحة</span></div>
+      <div class="n"><span class="t-en">5 wrong out of 822 (number, surname, given names, birth, expiry)</span><span class="t-ar">5 خطأ من 822 (الرقم واللقب والاسم والميلاد والانتهاء)</span></div></div>
+    <div class="tile"><div class="v">99.9%</div><div class="l"><span class="t-en">of verified passport fields are correct</span><span class="t-ar">من بيانات الجوازات المُثبتة صحيحة</span></div>
+      <div class="n"><span class="t-en">9,066 verified fields</span><span class="t-ar">9,066 معلومة مُثبتة</span></div></div>
+    <div class="tile"><div class="v">25%</div><div class="l"><span class="t-en">of frames proven with no person needed</span><span class="t-ar">من اللقطات أُثبتت دون حاجة لموظف</span></div>
+      <div class="n"><span class="t-en">the rest are flagged for review</span><span class="t-ar">والباقي يُحال للمراجعة</span></div></div>
+  </div>
+  <ul class="limits" style="margin-top:14px">
+    <li><span class="t-en">Where it falls short: raw reading on blurred, steep or partly hidden frames. Of the 3,315 frames it fully proves about one in four; the rest go to a person. One document (Algeria, 300 frames) was never read: both OCR models misread its MRZ print, the country code and check digits failed, and the reader declined to guess.</span><span class="t-ar">أين يقصر: القراءة نفسها في اللقطات المهزوزة أو المائلة بشدة أو المحجوبة جزئيًا. من 3,315 لقطة يُثبت بالكامل حوالي لقطة من كل أربع، والباقي يذهب لموظف. ووثيقة واحدة (الجزائر، 300 لقطة) لم تُقرأ أبدًا: أخطأ النموذجان في طباعة سطرها الآلي، ففشل رمز الدولة وأرقام التحقق، ورفض القارئ أن يخمّن.</span></li>
+    <li><span class="t-en">This test is not fully blind. Halfway through the first run I found two rules that let wrong values through as verified (two misreads that cancel out in the check digit, and stray characters after a name), fixed them, and ran all 3,315 frames again. The synthetic test was re-run with the fix too.</span><span class="t-ar">هذا الاختبار ليس أعمى تمامًا. في منتصف التشغيل الأول وجدت قاعدتين سمحتا بمرور قيم خاطئة كمُثبتة (خطآن في القراءة يلغي أحدهما الآخر في رقم التحقق، وحروف زائدة بعد الاسم)، فأصلحتهما وأعدت تشغيل الـ 3,315 لقطة كلها. وأُعيد الاختبار الاصطناعي أيضًا بعد الإصلاح.</span></li>
+  </ul>
+  <details><summary><span class="t-en">By filming condition</span><span class="t-ar">حسب ظروف التصوير</span></summary>
+    <table style="max-width:560px"><thead><tr><th></th><th class="num"><span class="t-en">Frames</span><span class="t-ar">اللقطات</span></th><th class="num"><span class="t-en">Exact MRZ</span><span class="t-ar">قراءة تامة</span></th><th class="num"><span class="t-en">Proven</span><span class="t-ar">مُثبتة</span></th></tr></thead>
+    <tbody><tr><td><span class="t-en">clutter</span><span class="t-ar">وسط أغراض</span></td><td class="num">720</td><td class="num">35.4%</td><td class="num">23.2%</td></tr><tr><td><span class="t-en">in hand</span><span class="t-ar">في اليد</span></td><td class="num">720</td><td class="num">37.4%</td><td class="num">18.6%</td></tr><tr><td><span class="t-en">keyboard</span><span class="t-ar">على لوحة مفاتيح</span></td><td class="num">720</td><td class="num">26.0%</td><td class="num">11.8%</td></tr><tr><td><span class="t-en">partly out of frame</span><span class="t-ar">خارج الإطار جزئيًا</span></td><td class="num">435</td><td class="num">19.8%</td><td class="num">11.9%</td></tr><tr><td><span class="t-en">table</span><span class="t-ar">على طاولة</span></td><td class="num">720</td><td class="num">74.7%</td><td class="num">53.3%</td></tr></tbody></table>
+  </details>
+</section>
+
+
+<section>
+  <h2><span class="t-en">How this helps a business</span><span class="t-ar">كيف يفيد هذا الشركات</span></h2>
+  <div class="legend3">
+    <div><h3><span class="t-en">Travel agencies</span><span class="t-ar">وكالات السفر</span></h3><span class="t-en">Photograph a passport, get booking-ready passenger data. Names, numbers and dates are checked before they reach the airline.</span><span class="t-ar">صوّر الجواز واحصل على بيانات المسافر جاهزة للحجز. الأسماء والأرقام والتواريخ مُراجَعة قبل أن تصل لشركة الطيران.</span></div>
+    <div><h3><span class="t-en">Accounts payable</span><span class="t-ar">الحسابات الدائنة</span></h3><span class="t-en">Supplier invoices are read and matched to their ZATCA QR. A printed total that differs from the QR is flagged as possible tampering.</span><span class="t-ar">تُقرأ فواتير الموردين وتُطابَق مع رمز QR الضريبي. وإذا اختلف الإجمالي المطبوع عن الرمز تُعلَّم كاحتمال تلاعب.</span></div>
+    <div><h3><span class="t-en">Hotels and onboarding</span><span class="t-ar">الفنادق وتسجيل العملاء</span></h3><span class="t-en">ID cards and visas at check-in or onboarding, with expiry dates read and proven.</span><span class="t-ar">بطاقات الهوية والتأشيرات عند تسجيل الوصول أو فتح الحساب، مع قراءة تاريخ الانتهاء وإثباته.</span></div>
+  </div>
+</section>
+
+<section>
+  <h2><span class="t-en">Good to know</span><span class="t-ar">من المهم أن تعرف</span></h2>
+  <ul class="limits">
+    <li><span class="t-en">The main test set is synthetic: documents I generated in 14 designs, then degraded to look like scans and phone photos. Real customer documents would be needed to confirm the automation rate for a specific business. The verified-field precision does not depend on the design, because it comes from checks that standards define.</span><span class="t-ar">مجموعة الاختبار الرئيسية اصطناعية: مستندات ولّدتها بـ 14 تصميمًا ثم شوّهتها لتشبه المسح الضوئي وصور الجوال. لتأكيد نسبة الأتمتة لشركة معيّنة نحتاج مستنداتها الحقيقية. أما دقة البيانات المُثبتة فلا تعتمد على التصميم، لأنها تأتي من تحققات تحددها المعايير.</span></li>
+    <li><span class="t-en">Some fields can never be proven from the image alone: an invoice number, a buyer&#39;s VAT number, or a name in Arabic. They come back as “read”, and their accuracy is reported separately (90.8%).</span><span class="t-ar">بعض البيانات لا يمكن إثباتها من الصورة وحدها: رقم الفاتورة، والرقم الضريبي للمشتري، والاسم بالعربية. تأتي بحالة «مقروءة»، ودقتها معروضة منفصلة (90.8%).</span></li>
+    <li><span class="t-en">A passport check digit cannot tell G from 6, S from 8 or L from 1: in its arithmetic they are the same. On real photos two misreads can also cancel out (BD0002028 read as 800002028). So a document number is verified only when the same number is also printed on the page.</span><span class="t-ar">رقم التحقق في الجواز لا يفرّق بين G و6، ولا S و8، ولا L و1، فهي في حسابه متساوية. وفي الصور الحقيقية قد يلغي خطآن أحدهما الآخر (BD0002028 قُرئ 800002028). لذلك لا يُعتبر رقم الوثيقة مُثبتًا إلا إذا وُجد نفس الرقم مطبوعًا في الصفحة.</span></li>
+    <li><span class="t-en">A valid ZATCA QR proves what the issuer encoded, not that the invoice is genuine. Checking the cryptographic stamp of phase-2 invoices needs ZATCA&#39;s certificates and is not part of this project.</span><span class="t-ar">رمز QR السليم يثبت ما وضعه مُصدر الفاتورة، لا أن الفاتورة أصلية. التحقق من الختم المشفّر لفواتير المرحلة الثانية يحتاج شهادات هيئة الزكاة وليس ضمن هذا المشروع.</span></li>
+  </ul>
+</section>
+
+<section class="tech">
+  <h2><span class="t-en">Technical details</span><span class="t-ar">التفاصيل التقنية</span></h2>
+  <ul>
+    <li>OCR: RapidOCR (ONNX Runtime) — PP-OCRv6 small <span class="t-en">detection and Latin recognition</span><span class="t-ar">للكشف والتعرف اللاتيني</span>; PP-OCRv5 mobile <span class="t-en">Arabic recognition</span><span class="t-ar">للتعرف العربي</span>. <span class="t-en">Each text line keeps both readings; on the MRZ, check digits choose between them.</span><span class="t-ar">كل سطر يحتفظ بالقراءتين، وفي المنطقة الآلية تختار أرقام التحقق بينهما.</span></li>
+    <li><span class="t-en">Geometry: Canny edges, contour and convex-hull search, perspective warp (OpenCV); text rows rebuilt after undoing the page angle.</span><span class="t-ar">الهندسة: حواف Canny، والبحث عن الحدود والغلاف المحدب، وتصحيح المنظور (OpenCV)، وإعادة بناء الأسطر بعد إلغاء ميل الصفحة.</span></li>
+    <li><span class="t-en">Barcodes: zxing-cpp (QR, PDF417, Aztec). Standards implemented from the specifications: ICAO 9303 (TD1, TD2, TD3, MRV-A/B), ZATCA TLV QR (phases 1 and 2), IATA BCBP.</span><span class="t-ar">الباركود: zxing-cpp (QR وPDF417 وAztec). المعايير مطبّقة من مواصفاتها: ICAO 9303 (TD1 وTD2 وTD3 وMRV-A/B)، وQR الضريبي بصيغة TLV (المرحلتان 1 و2)، وIATA BCBP.</span></li>
+    <li><span class="t-en">Test data: HTML templates rendered with headless Chrome, then scan and phone-photo degradation (perspective, blur, noise, shadow, glare, JPEG). Dev and test splits use different seeds; 3 designs are held out of development.</span><span class="t-ar">بيانات الاختبار: قوالب HTML تُرسم بمتصفح Chrome دون واجهة، ثم تشويه يحاكي المسح وتصوير الجوال (منظور وتشويش وضوضاء وظل ولمعان وضغط JPEG). مجموعتا التطوير والاختبار ببذور مختلفة، و3 تصميمات مُبعدة عن التطوير.</span></li>
+  </ul>
+<pre>python -m docreader passport.jpg            # fields + status
+python -m docreader invoices/ --excel out.xlsx</pre>
+</section>
+
+<footer><span class="t-en">Built by Yahia Zakaria · results generated 2026-10-09</span><span class="t-ar">بناء يحيى زكريا · النتائج بتاريخ 2026-10-09</span></footer>
+</div>
+<script>
+(function () {
+  var root = document.documentElement, btn = document.getElementById("lang");
+  var params = new URLSearchParams(location.search), lang = params.get("lang");
+  if (!lang) { try { lang = localStorage.getItem("docreader-lang"); } catch (e) {} }
+  function apply(l) {
+    root.lang = l === "ar" ? "ar" : "en";
+    root.dir = l === "ar" ? "rtl" : "ltr";
+    btn.textContent = l === "ar" ? "English" : "العربية";
+    document.title = l === "ar" ? "قارئ المستندات السعودية" : "Saudi Document Reader";
+  }
+  apply(lang || "en");
+  btn.addEventListener("click", function () {
+    var l = root.lang === "ar" ? "en" : "ar";
+    apply(l);
+    try { localStorage.setItem("docreader-lang", l); } catch (e) {}
+    var u = new URL(location.href); u.searchParams.set("lang", l); history.replaceState(null, "", u);
+  });
+  var tip = document.getElementById("tip");
+  document.querySelectorAll("[data-tip]").forEach(function (el) {
+    el.addEventListener("mousemove", function (e) {
+      tip.textContent = el.getAttribute("data-tip"); tip.style.display = "block";
+      tip.style.left = Math.min(e.clientX + 12, innerWidth - 270) + "px"; tip.style.top = (e.clientY + 14) + "px";
+    });
+    el.addEventListener("mouseleave", function () { tip.style.display = "none"; });
+  });
+})();
+</script>
+</body>
+</html>
