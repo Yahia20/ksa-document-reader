@@ -1,0 +1,1042 @@
+{
+  "documents": 600,
+  "doc_type_accuracy": 0.9967,
+  "confusion": [
+    {
+      "true": "boarding_pass",
+      "pred": "boarding_pass",
+      "n": 60
+    },
+    {
+      "true": "credit_note",
+      "pred": "credit_note",
+      "n": 60
+    },
+    {
+      "true": "debit_note",
+      "pred": "debit_note",
+      "n": 60
+    },
+    {
+      "true": "id_card_td1",
+      "pred": "id_card_td1",
+      "n": 60
+    },
+    {
+      "true": "id_card_td2",
+      "pred": "id_card_td2",
+      "n": 60
+    },
+    {
+      "true": "other",
+      "pred": "other",
+      "n": 60
+    },
+    {
+      "true": "passport",
+      "pred": "passport",
+      "n": 60
+    },
+    {
+      "true": "simplified_tax_invoice",
+      "pred": "simplified_tax_invoice",
+      "n": 58
+    },
+    {
+      "true": "simplified_tax_invoice",
+      "pred": "tax_invoice",
+      "n": 2
+    },
+    {
+      "true": "tax_invoice",
+      "pred": "tax_invoice",
+      "n": 60
+    },
+    {
+      "true": "visa",
+      "pred": "visa",
+      "n": 60
+    }
+  ],
+  "overall": {
+    "fields": 4834,
+    "verified": 3076,
+    "verified_correct": 3076,
+    "verified_precision": 1.0,
+    "automation_rate": 0.6363,
+    "read": 1222,
+    "read_accuracy": 0.9075,
+    "review": 536
+  },
+  "by_doc_type": {
+    "boarding_pass": {
+      "fields": 600,
+      "verified": 540,
+      "verified_correct": 540,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9,
+      "read": 4,
+      "read_accuracy": 1.0,
+      "review": 56
+    },
+    "credit_note": {
+      "fields": 593,
+      "verified": 292,
+      "verified_correct": 292,
+      "verified_precision": 1.0,
+      "automation_rate": 0.4924,
+      "read": 206,
+      "read_accuracy": 0.8398,
+      "review": 95
+    },
+    "debit_note": {
+      "fields": 600,
+      "verified": 305,
+      "verified_correct": 305,
+      "verified_precision": 1.0,
+      "automation_rate": 0.5083,
+      "read": 206,
+      "read_accuracy": 0.8835,
+      "review": 89
+    },
+    "id_card_td1": {
+      "fields": 513,
+      "verified": 270,
+      "verified_correct": 270,
+      "verified_precision": 1.0,
+      "automation_rate": 0.5263,
+      "read": 125,
+      "read_accuracy": 0.944,
+      "review": 118
+    },
+    "id_card_td2": {
+      "fields": 514,
+      "verified": 353,
+      "verified_correct": 353,
+      "verified_precision": 1.0,
+      "automation_rate": 0.6868,
+      "read": 155,
+      "read_accuracy": 0.9613,
+      "review": 6
+    },
+    "passport": {
+      "fields": 514,
+      "verified": 350,
+      "verified_correct": 350,
+      "verified_precision": 1.0,
+      "automation_rate": 0.6809,
+      "read": 152,
+      "read_accuracy": 0.9079,
+      "review": 12
+    },
+    "simplified_tax_invoice": {
+      "fields": 480,
+      "verified": 308,
+      "verified_correct": 308,
+      "verified_precision": 1.0,
+      "automation_rate": 0.6417,
+      "read": 104,
+      "read_accuracy": 0.8654,
+      "review": 68
+    },
+    "tax_invoice": {
+      "fields": 540,
+      "verified": 327,
+      "verified_correct": 327,
+      "verified_precision": 1.0,
+      "automation_rate": 0.6056,
+      "read": 141,
+      "read_accuracy": 0.8936,
+      "review": 72
+    },
+    "visa": {
+      "fields": 480,
+      "verified": 331,
+      "verified_correct": 331,
+      "verified_precision": 1.0,
+      "automation_rate": 0.6896,
+      "read": 129,
+      "read_accuracy": 1.0,
+      "review": 20
+    }
+  },
+  "by_level": {
+    "hard": {
+      "fields": 1210,
+      "verified": 514,
+      "verified_correct": 514,
+      "verified_precision": 1.0,
+      "automation_rate": 0.4248,
+      "read": 382,
+      "read_accuracy": 0.8429,
+      "review": 314
+    },
+    "photo": {
+      "fields": 2174,
+      "verified": 1521,
+      "verified_correct": 1521,
+      "verified_precision": 1.0,
+      "automation_rate": 0.6996,
+      "read": 507,
+      "read_accuracy": 0.9329,
+      "review": 146
+    },
+    "scan": {
+      "fields": 1450,
+      "verified": 1041,
+      "verified_correct": 1041,
+      "verified_precision": 1.0,
+      "automation_rate": 0.7179,
+      "read": 333,
+      "read_accuracy": 0.9429,
+      "review": 76
+    }
+  },
+  "by_heldout_template": {
+    "false": {
+      "fields": 3719,
+      "verified": 2395,
+      "verified_correct": 2395,
+      "verified_precision": 1.0,
+      "automation_rate": 0.644,
+      "read": 962,
+      "read_accuracy": 0.921,
+      "review": 362
+    },
+    "true": {
+      "fields": 1115,
+      "verified": 681,
+      "verified_correct": 681,
+      "verified_precision": 1.0,
+      "automation_rate": 0.6108,
+      "read": 260,
+      "read_accuracy": 0.8577,
+      "review": 174
+    }
+  },
+  "by_field": {
+    "boarding_pass.cabin": {
+      "fields": 60,
+      "verified": 54,
+      "verified_correct": 54,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 6
+    },
+    "boarding_pass.carrier": {
+      "fields": 60,
+      "verified": 54,
+      "verified_correct": 54,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 6
+    },
+    "boarding_pass.flight_number": {
+      "fields": 60,
+      "verified": 54,
+      "verified_correct": 54,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 6
+    },
+    "boarding_pass.from_airport": {
+      "fields": 60,
+      "verified": 54,
+      "verified_correct": 54,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9,
+      "read": 1,
+      "read_accuracy": 1.0,
+      "review": 5
+    },
+    "boarding_pass.julian_date": {
+      "fields": 60,
+      "verified": 54,
+      "verified_correct": 54,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 6
+    },
+    "boarding_pass.passenger_name": {
+      "fields": 60,
+      "verified": 54,
+      "verified_correct": 54,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9,
+      "read": 2,
+      "read_accuracy": 1.0,
+      "review": 4
+    },
+    "boarding_pass.pnr": {
+      "fields": 60,
+      "verified": 54,
+      "verified_correct": 54,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 6
+    },
+    "boarding_pass.seat": {
+      "fields": 60,
+      "verified": 54,
+      "verified_correct": 54,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 6
+    },
+    "boarding_pass.sequence": {
+      "fields": 60,
+      "verified": 54,
+      "verified_correct": 54,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 6
+    },
+    "boarding_pass.to_airport": {
+      "fields": 60,
+      "verified": 54,
+      "verified_correct": 54,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9,
+      "read": 1,
+      "read_accuracy": 1.0,
+      "review": 5
+    },
+    "credit_note.buyer_vat": {
+      "fields": 53,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 46,
+      "read_accuracy": 0.9783,
+      "review": 7
+    },
+    "credit_note.invoice_number": {
+      "fields": 60,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 54,
+      "read_accuracy": 0.7778,
+      "review": 6
+    },
+    "credit_note.issue_date": {
+      "fields": 60,
+      "verified": 43,
+      "verified_correct": 43,
+      "verified_precision": 1.0,
+      "automation_rate": 0.7167,
+      "read": 16,
+      "read_accuracy": 0.8125,
+      "review": 1
+    },
+    "credit_note.line_items": {
+      "fields": 60,
+      "verified": 22,
+      "verified_correct": 22,
+      "verified_precision": 1.0,
+      "automation_rate": 0.3667,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 38
+    },
+    "credit_note.original_invoice": {
+      "fields": 60,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 39,
+      "read_accuracy": 1.0,
+      "review": 21
+    },
+    "credit_note.seller_name": {
+      "fields": 60,
+      "verified": 43,
+      "verified_correct": 43,
+      "verified_precision": 1.0,
+      "automation_rate": 0.7167,
+      "read": 17,
+      "read_accuracy": 0.8235,
+      "review": 0
+    },
+    "credit_note.seller_vat": {
+      "fields": 60,
+      "verified": 43,
+      "verified_correct": 43,
+      "verified_precision": 1.0,
+      "automation_rate": 0.7167,
+      "read": 13,
+      "read_accuracy": 0.8462,
+      "review": 4
+    },
+    "credit_note.subtotal": {
+      "fields": 60,
+      "verified": 47,
+      "verified_correct": 47,
+      "verified_precision": 1.0,
+      "automation_rate": 0.7833,
+      "read": 7,
+      "read_accuracy": 0.4286,
+      "review": 6
+    },
+    "credit_note.total": {
+      "fields": 60,
+      "verified": 47,
+      "verified_correct": 47,
+      "verified_precision": 1.0,
+      "automation_rate": 0.7833,
+      "read": 7,
+      "read_accuracy": 0.4286,
+      "review": 6
+    },
+    "credit_note.vat_total": {
+      "fields": 60,
+      "verified": 47,
+      "verified_correct": 47,
+      "verified_precision": 1.0,
+      "automation_rate": 0.7833,
+      "read": 7,
+      "read_accuracy": 0.4286,
+      "review": 6
+    },
+    "debit_note.buyer_vat": {
+      "fields": 60,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 50,
+      "read_accuracy": 1.0,
+      "review": 10
+    },
+    "debit_note.invoice_number": {
+      "fields": 60,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 57,
+      "read_accuracy": 0.7368,
+      "review": 3
+    },
+    "debit_note.issue_date": {
+      "fields": 60,
+      "verified": 43,
+      "verified_correct": 43,
+      "verified_precision": 1.0,
+      "automation_rate": 0.7167,
+      "read": 15,
+      "read_accuracy": 0.9333,
+      "review": 2
+    },
+    "debit_note.line_items": {
+      "fields": 60,
+      "verified": 24,
+      "verified_correct": 24,
+      "verified_precision": 1.0,
+      "automation_rate": 0.4,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 36
+    },
+    "debit_note.original_invoice": {
+      "fields": 60,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 40,
+      "read_accuracy": 0.95,
+      "review": 20
+    },
+    "debit_note.seller_name": {
+      "fields": 60,
+      "verified": 44,
+      "verified_correct": 44,
+      "verified_precision": 1.0,
+      "automation_rate": 0.7333,
+      "read": 16,
+      "read_accuracy": 0.8125,
+      "review": 0
+    },
+    "debit_note.seller_vat": {
+      "fields": 60,
+      "verified": 44,
+      "verified_correct": 44,
+      "verified_precision": 1.0,
+      "automation_rate": 0.7333,
+      "read": 13,
+      "read_accuracy": 0.7692,
+      "review": 3
+    },
+    "debit_note.subtotal": {
+      "fields": 60,
+      "verified": 50,
+      "verified_correct": 50,
+      "verified_precision": 1.0,
+      "automation_rate": 0.8333,
+      "read": 5,
+      "read_accuracy": 1.0,
+      "review": 5
+    },
+    "debit_note.total": {
+      "fields": 60,
+      "verified": 50,
+      "verified_correct": 50,
+      "verified_precision": 1.0,
+      "automation_rate": 0.8333,
+      "read": 5,
+      "read_accuracy": 1.0,
+      "review": 5
+    },
+    "debit_note.vat_total": {
+      "fields": 60,
+      "verified": 50,
+      "verified_correct": 50,
+      "verified_precision": 1.0,
+      "automation_rate": 0.8333,
+      "read": 5,
+      "read_accuracy": 1.0,
+      "review": 5
+    },
+    "id_card_td1.birth_date": {
+      "fields": 60,
+      "verified": 47,
+      "verified_correct": 47,
+      "verified_precision": 1.0,
+      "automation_rate": 0.7833,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 13
+    },
+    "id_card_td1.document_number": {
+      "fields": 60,
+      "verified": 47,
+      "verified_correct": 47,
+      "verified_precision": 1.0,
+      "automation_rate": 0.7833,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 13
+    },
+    "id_card_td1.expiry_date": {
+      "fields": 60,
+      "verified": 47,
+      "verified_correct": 47,
+      "verified_precision": 1.0,
+      "automation_rate": 0.7833,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 13
+    },
+    "id_card_td1.given_names": {
+      "fields": 60,
+      "verified": 45,
+      "verified_correct": 45,
+      "verified_precision": 1.0,
+      "automation_rate": 0.75,
+      "read": 1,
+      "read_accuracy": 1.0,
+      "review": 14
+    },
+    "id_card_td1.issuing_state": {
+      "fields": 60,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 47,
+      "read_accuracy": 1.0,
+      "review": 13
+    },
+    "id_card_td1.name_ar": {
+      "fields": 33,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 26,
+      "read_accuracy": 0.7308,
+      "review": 7
+    },
+    "id_card_td1.nationality": {
+      "fields": 60,
+      "verified": 39,
+      "verified_correct": 39,
+      "verified_precision": 1.0,
+      "automation_rate": 0.65,
+      "read": 3,
+      "read_accuracy": 1.0,
+      "review": 18
+    },
+    "id_card_td1.sex": {
+      "fields": 60,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 47,
+      "read_accuracy": 1.0,
+      "review": 13
+    },
+    "id_card_td1.surname": {
+      "fields": 60,
+      "verified": 45,
+      "verified_correct": 45,
+      "verified_precision": 1.0,
+      "automation_rate": 0.75,
+      "read": 1,
+      "read_accuracy": 1.0,
+      "review": 14
+    },
+    "id_card_td2.birth_date": {
+      "fields": 60,
+      "verified": 60,
+      "verified_correct": 60,
+      "verified_precision": 1.0,
+      "automation_rate": 1.0,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 0
+    },
+    "id_card_td2.document_number": {
+      "fields": 60,
+      "verified": 59,
+      "verified_correct": 59,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9833,
+      "read": 1,
+      "read_accuracy": 1.0,
+      "review": 0
+    },
+    "id_card_td2.expiry_date": {
+      "fields": 60,
+      "verified": 60,
+      "verified_correct": 60,
+      "verified_precision": 1.0,
+      "automation_rate": 1.0,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 0
+    },
+    "id_card_td2.given_names": {
+      "fields": 60,
+      "verified": 55,
+      "verified_correct": 55,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9167,
+      "read": 2,
+      "read_accuracy": 1.0,
+      "review": 3
+    },
+    "id_card_td2.issuing_state": {
+      "fields": 60,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 60,
+      "read_accuracy": 1.0,
+      "review": 0
+    },
+    "id_card_td2.name_ar": {
+      "fields": 34,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 32,
+      "read_accuracy": 0.8125,
+      "review": 2
+    },
+    "id_card_td2.nationality": {
+      "fields": 60,
+      "verified": 60,
+      "verified_correct": 60,
+      "verified_precision": 1.0,
+      "automation_rate": 1.0,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 0
+    },
+    "id_card_td2.sex": {
+      "fields": 60,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 60,
+      "read_accuracy": 1.0,
+      "review": 0
+    },
+    "id_card_td2.surname": {
+      "fields": 60,
+      "verified": 59,
+      "verified_correct": 59,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9833,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 1
+    },
+    "passport.birth_date": {
+      "fields": 60,
+      "verified": 59,
+      "verified_correct": 59,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9833,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 1
+    },
+    "passport.document_number": {
+      "fields": 60,
+      "verified": 58,
+      "verified_correct": 58,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9667,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 2
+    },
+    "passport.expiry_date": {
+      "fields": 60,
+      "verified": 59,
+      "verified_correct": 59,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9833,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 1
+    },
+    "passport.given_names": {
+      "fields": 60,
+      "verified": 57,
+      "verified_correct": 57,
+      "verified_precision": 1.0,
+      "automation_rate": 0.95,
+      "read": 1,
+      "read_accuracy": 1.0,
+      "review": 2
+    },
+    "passport.issuing_state": {
+      "fields": 60,
+      "verified": 59,
+      "verified_correct": 59,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9833,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 1
+    },
+    "passport.name_ar": {
+      "fields": 34,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 34,
+      "read_accuracy": 0.5882,
+      "review": 0
+    },
+    "passport.nationality": {
+      "fields": 60,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 58,
+      "read_accuracy": 1.0,
+      "review": 2
+    },
+    "passport.sex": {
+      "fields": 60,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 59,
+      "read_accuracy": 1.0,
+      "review": 1
+    },
+    "passport.surname": {
+      "fields": 60,
+      "verified": 58,
+      "verified_correct": 58,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9667,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 2
+    },
+    "simplified_tax_invoice.invoice_number": {
+      "fields": 60,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 39,
+      "read_accuracy": 0.9487,
+      "review": 21
+    },
+    "simplified_tax_invoice.issue_date": {
+      "fields": 60,
+      "verified": 43,
+      "verified_correct": 43,
+      "verified_precision": 1.0,
+      "automation_rate": 0.7167,
+      "read": 12,
+      "read_accuracy": 0.9167,
+      "review": 5
+    },
+    "simplified_tax_invoice.line_items": {
+      "fields": 60,
+      "verified": 25,
+      "verified_correct": 25,
+      "verified_precision": 1.0,
+      "automation_rate": 0.4167,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 35
+    },
+    "simplified_tax_invoice.seller_name": {
+      "fields": 60,
+      "verified": 45,
+      "verified_correct": 45,
+      "verified_precision": 1.0,
+      "automation_rate": 0.75,
+      "read": 15,
+      "read_accuracy": 0.8667,
+      "review": 0
+    },
+    "simplified_tax_invoice.seller_vat": {
+      "fields": 60,
+      "verified": 45,
+      "verified_correct": 45,
+      "verified_precision": 1.0,
+      "automation_rate": 0.75,
+      "read": 11,
+      "read_accuracy": 1.0,
+      "review": 4
+    },
+    "simplified_tax_invoice.subtotal": {
+      "fields": 60,
+      "verified": 50,
+      "verified_correct": 50,
+      "verified_precision": 1.0,
+      "automation_rate": 0.8333,
+      "read": 9,
+      "read_accuracy": 0.6667,
+      "review": 1
+    },
+    "simplified_tax_invoice.total": {
+      "fields": 60,
+      "verified": 50,
+      "verified_correct": 50,
+      "verified_precision": 1.0,
+      "automation_rate": 0.8333,
+      "read": 9,
+      "read_accuracy": 0.6667,
+      "review": 1
+    },
+    "simplified_tax_invoice.vat_total": {
+      "fields": 60,
+      "verified": 50,
+      "verified_correct": 50,
+      "verified_precision": 1.0,
+      "automation_rate": 0.8333,
+      "read": 9,
+      "read_accuracy": 0.6667,
+      "review": 1
+    },
+    "tax_invoice.buyer_vat": {
+      "fields": 60,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 51,
+      "read_accuracy": 0.9412,
+      "review": 9
+    },
+    "tax_invoice.invoice_number": {
+      "fields": 60,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 47,
+      "read_accuracy": 0.8511,
+      "review": 13
+    },
+    "tax_invoice.issue_date": {
+      "fields": 60,
+      "verified": 48,
+      "verified_correct": 48,
+      "verified_precision": 1.0,
+      "automation_rate": 0.8,
+      "read": 9,
+      "read_accuracy": 1.0,
+      "review": 3
+    },
+    "tax_invoice.line_items": {
+      "fields": 60,
+      "verified": 17,
+      "verified_correct": 17,
+      "verified_precision": 1.0,
+      "automation_rate": 0.2833,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 43
+    },
+    "tax_invoice.seller_name": {
+      "fields": 60,
+      "verified": 50,
+      "verified_correct": 50,
+      "verified_precision": 1.0,
+      "automation_rate": 0.8333,
+      "read": 10,
+      "read_accuracy": 0.9,
+      "review": 0
+    },
+    "tax_invoice.seller_vat": {
+      "fields": 60,
+      "verified": 50,
+      "verified_correct": 50,
+      "verified_precision": 1.0,
+      "automation_rate": 0.8333,
+      "read": 9,
+      "read_accuracy": 0.5556,
+      "review": 1
+    },
+    "tax_invoice.subtotal": {
+      "fields": 60,
+      "verified": 54,
+      "verified_correct": 54,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9,
+      "read": 5,
+      "read_accuracy": 1.0,
+      "review": 1
+    },
+    "tax_invoice.total": {
+      "fields": 60,
+      "verified": 54,
+      "verified_correct": 54,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9,
+      "read": 5,
+      "read_accuracy": 1.0,
+      "review": 1
+    },
+    "tax_invoice.vat_total": {
+      "fields": 60,
+      "verified": 54,
+      "verified_correct": 54,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9,
+      "read": 5,
+      "read_accuracy": 1.0,
+      "review": 1
+    },
+    "visa.birth_date": {
+      "fields": 60,
+      "verified": 59,
+      "verified_correct": 59,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9833,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 1
+    },
+    "visa.document_number": {
+      "fields": 60,
+      "verified": 53,
+      "verified_correct": 53,
+      "verified_precision": 1.0,
+      "automation_rate": 0.8833,
+      "read": 1,
+      "read_accuracy": 1.0,
+      "review": 6
+    },
+    "visa.expiry_date": {
+      "fields": 60,
+      "verified": 59,
+      "verified_correct": 59,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9833,
+      "read": 0,
+      "read_accuracy": null,
+      "review": 1
+    },
+    "visa.given_names": {
+      "fields": 60,
+      "verified": 53,
+      "verified_correct": 53,
+      "verified_precision": 1.0,
+      "automation_rate": 0.8833,
+      "read": 2,
+      "read_accuracy": 1.0,
+      "review": 5
+    },
+    "visa.issuing_state": {
+      "fields": 60,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 59,
+      "read_accuracy": 1.0,
+      "review": 1
+    },
+    "visa.nationality": {
+      "fields": 60,
+      "verified": 55,
+      "verified_correct": 55,
+      "verified_precision": 1.0,
+      "automation_rate": 0.9167,
+      "read": 4,
+      "read_accuracy": 1.0,
+      "review": 1
+    },
+    "visa.sex": {
+      "fields": 60,
+      "verified": 0,
+      "verified_correct": 0,
+      "verified_precision": null,
+      "automation_rate": 0.0,
+      "read": 59,
+      "read_accuracy": 1.0,
+      "review": 1
+    },
+    "visa.surname": {
+      "fields": 60,
+      "verified": 52,
+      "verified_correct": 52,
+      "verified_precision": 1.0,
+      "automation_rate": 0.8667,
+      "read": 4,
+      "read_accuracy": 1.0,
+      "review": 4
+    }
+  },
+  "straight_through_docs": 54,
+  "straight_through_correct": 54,
+  "seconds_per_doc": 4.32
+}

@@ -1,0 +1,53 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  body { width: 1240px; min-height: 1754px; font-family: "Cairo", Arial, sans-serif; color: #243b53; }
+  .bar { height: 16px; background: {{ accent }}; }
+  .pg { padding: 50px 70px; }
+  .head { display: flex; justify-content: space-between; }
+  .brand { font-size: 30px; font-weight: 800; color: {{ accent }}; }
+  .brand .ar { font-size: 26px; font-weight: 700; color: #334e68; display: block; }
+  .addr { font-size: 17px; color: #627d98; line-height: 1.5; margin-top: 6px; }
+  .qr svg { width: {{ qr_px }}px; height: {{ qr_px }}px; }
+  .ttl { margin: 34px 0 10px; font-size: 34px; font-weight: 800; }
+  .ttl .ar { font-size: 30px; font-weight: 700; margin-left: 16px; color: #627d98; }
+  .cols { display: flex; gap: 40px; margin: 10px 0 26px; }
+  .col { flex: 1; font-size: 19px; line-height: 1.6; }
+  .lbl { font-size: 15px; text-transform: uppercase; letter-spacing: 1px; color: #829ab1; }
+  table { width: 100%; border-collapse: collapse; font-size: 19px; }
+  th { text-align: left; border-bottom: 2px solid #243b53; padding: 8px 4px; font-size: 16px; }
+  th.n, td.n { text-align: right; }
+  td { padding: 10px 4px; border-bottom: 1px solid #d9e2ec; }
+  .sum { margin-left: auto; width: 560px; margin-top: 22px; font-size: 21px; }
+  .sum div { display: flex; justify-content: space-between; padding: 6px 0; }
+  .sum .g { font-size: 27px; font-weight: 800; border-top: 2px solid #243b53; margin-top: 6px; padding-top: 10px; }
+  .note { margin-top: 40px; font-size: 16px; color: #829ab1; }
+</style></head>
+<body><div class="bar"></div><div class="pg">
+  <div class="head">
+    <div><div class="brand">{{ inv.seller.name_en }}<span class="ar">{{ inv.seller.name_ar }}</span></div>
+      <div class="addr">{{ inv.seller.building }} {{ inv.seller.street[1] }}, {{ inv.seller.district[1] }}, {{ inv.seller.city[1] }} {{ inv.seller.postal }}<br>
+        VAT registration number: {{ inv.seller.vat }}</div></div>
+    <div class="qr">{{ qr_svg|safe }}</div>
+  </div>
+  <div class="ttl">{{ title_en }}<span class="ar">{{ title_ar }}</span></div>
+  <div class="cols">
+    <div class="col"><div class="lbl">Number</div>{{ inv.number }}
+      <div class="lbl" style="margin-top:8px">Date</div>{{ date_print }}
+      {% if inv.original_number %}<div class="lbl" style="margin-top:8px">Reference invoice</div>{{ inv.original_number }}{% endif %}</div>
+    {% if inv.buyer %}<div class="col"><div class="lbl">Bill to</div>{{ inv.buyer.name_en }}<br>
+      <span class="ar">{{ inv.buyer.name_ar }}</span><br>VAT: {{ inv.buyer.vat }}</div>{% endif %}
+    {% if inv.original_number %}<div class="col"><div class="lbl">Reason</div>{{ inv.reason[1] }}<br><span class="ar">{{ inv.reason[0] }}</span></div>{% endif %}
+  </div>
+  <table>
+    <tr><th>Item</th><th class="n">Qty</th><th class="n">Price</th><th class="n">Net amount</th><th class="n">VAT</th></tr>
+    {% for l in inv.lines %}<tr><td>{{ l.desc_en }}</td><td class="n">{{ l.qty }}</td><td class="n">{{ fmt(l.unit) }}</td>
+      <td class="n">{{ fmt(l.net) }}</td><td class="n">{{ fmt(l.vat) }}</td></tr>{% endfor %}
+  </table>
+  <div class="sum">
+    <div><span>Subtotal</span><span>{{ fmt(inv.subtotal) }}</span></div>
+    <div><span>Total VAT (15%)</span><span>{{ fmt(inv.vat_total) }}</span></div>
+    <div class="g"><span>Amount due</span><span>{{ cur }} {{ fmt(inv.total) }}</span></div>
+  </div>
+  <div class="note">Synthetic specimen generated for testing · وثيقة تجريبية</div>
+</div></body></html>

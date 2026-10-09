@@ -1,0 +1,27 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  /* Not one of the supported types: a hotel booking confirmation. */
+  body { width: 1240px; min-height: 1500px; font-family: "Tajawal", Arial, sans-serif; color: #263238; }
+  .pg { padding: 70px 80px; font-size: 22px; line-height: 1.7; }
+  .h { display: flex; justify-content: space-between; border-bottom: 2px solid {{ accent }}; padding-bottom: 14px; margin-bottom: 30px; }
+  .h .n { font-size: 30px; font-weight: 700; color: {{ accent }}; }
+  .h .ar { font-size: 28px; font-weight: 700; }
+  table { border-collapse: collapse; margin: 20px 0; width: 100%; }
+  td { border: 1px solid #b0bec5; padding: 8px 12px; }
+</style></head>
+<body><div class="pg">
+  <div class="h"><span class="n">{{ hotel_en }}</span><span class="ar">{{ hotel_ar }}</span></div>
+  <p><b>Booking confirmation / <span class="ar">تأكيد حجز</span></b></p>
+  <p>Dear {{ guest }},</p>
+  <p>Thank you for choosing us. We are pleased to confirm your reservation as follows:</p>
+  <table>
+    <tr><td>Confirmation no.</td><td>{{ conf }}</td></tr>
+    <tr><td>Check-in</td><td>{{ checkin }}</td></tr>
+    <tr><td>Nights</td><td>{{ nights }}</td></tr>
+    <tr><td>Room</td><td>{{ room }}</td></tr>
+  </table>
+  <p class="ar">نشكركم على اختياركم لنا، ونتطلع لاستقبالكم. يرجى إبراز الهوية عند الوصول.</p>
+  <p>Kind regards,<br>Reservations team</p>
+  <p style="color:#90a4ae;font-size:16px">SPECIMEN</p>
+</div></body></html>

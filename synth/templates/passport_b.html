@@ -1,0 +1,47 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  body { width: 1250px; height: 880px; }
+  .page { position: relative; width: 1250px; height: 880px; overflow: hidden; font-family: "Tajawal", Arial, sans-serif;
+    background:
+      repeating-linear-gradient(45deg, rgba(21,101,192,.05) 0 2px, transparent 2px 11px),
+      repeating-linear-gradient(-45deg, rgba(173,20,87,.04) 0 2px, transparent 2px 13px),
+      radial-gradient(ellipse at 70% 30%, #fdf3e7, #eaf1fb 70%);
+    color: #102030; }
+  .band { height: 92px; background: linear-gradient(90deg, #0d3c61, #1565c0); color: #fff;
+    display: flex; align-items: center; justify-content: space-between; padding: 0 40px; }
+  .band .en { font-size: 28px; letter-spacing: 6px; font-weight: 700; }
+  .band .ar { font-family: "Amiri"; font-size: 38px; font-weight: 700; }
+  .photo { position: absolute; right: 50px; top: 130px; width: 250px; height: 320px; }
+  .rows { position: absolute; left: 50px; top: 120px; width: 820px; }
+  .r { display: flex; gap: 30px; margin-bottom: 8px; }
+  .c { flex: 1; }
+  .k { font-size: 15px; color: #5c6b7a; text-transform: uppercase; letter-spacing: 1px; }
+  .k .ar { font-family: "Amiri"; text-transform: none; font-size: 17px; letter-spacing: 0; }
+  .val { font-size: 26px; font-weight: 700; }
+  .val.ar { font-family: "Amiri"; font-size: 30px; }
+  .mrzbox { position: absolute; left: 0; right: 0; bottom: 0; height: 150px; background: rgba(255,255,255,.72);
+    border-top: 2px solid #0d3c61; }
+  .mrz { position: absolute; left: 46px; top: 24px; font-size: {{ mrz_size }}px; }
+  .specimen { left: 250px; top: 330px; font-size: 120px; }
+</style></head>
+<body><div class="page">
+  <div class="band"><span class="ar">جواز سفر يوتوبيا</span><span class="en">PASSPORT · UTOPIA</span></div>
+  <div class="photo"></div>
+  <div class="rows">
+    <div class="r"><div class="c"><div class="k">Type</div><div class="val">P</div></div>
+      <div class="c"><div class="k">Issuing state</div><div class="val">UTO</div></div>
+      <div class="c"><div class="k">Passport number <span class="ar">رقم الجواز</span></div><div class="val">{{ doc_number }}</div></div></div>
+    {% if name_ar %}<div class="r"><div class="c"><div class="k"><span class="ar">الاسم</span></div><div class="val ar">{{ name_ar }}</div></div></div>{% endif %}
+    <div class="r"><div class="c"><div class="k">Surname <span class="ar">اللقب</span></div><div class="val">{{ surname }}</div></div></div>
+    <div class="r"><div class="c"><div class="k">Given names <span class="ar">الأسماء</span></div><div class="val">{{ given_names }}</div></div></div>
+    <div class="r"><div class="c"><div class="k">Nationality</div><div class="val">{{ nationality_name }}</div></div>
+      <div class="c"><div class="k">Sex</div><div class="val">{{ sex }}</div></div></div>
+    <div class="r"><div class="c"><div class="k">Date of birth <span class="ar">الميلاد</span></div><div class="val">{{ birth_print }}</div></div>
+      <div class="c"><div class="k">Place of birth</div><div class="val">{{ place_of_birth }}</div></div></div>
+    <div class="r"><div class="c"><div class="k">Date of issue</div><div class="val">{{ issue_print }}</div></div>
+      <div class="c"><div class="k">Date of expiry <span class="ar">الانتهاء</span></div><div class="val">{{ expiry_print }}</div></div></div>
+  </div>
+  <div class="specimen">SPECIMEN</div>
+  <div class="mrzbox"><div class="mrz">{{ mrz }}</div></div>
+</div></body></html>

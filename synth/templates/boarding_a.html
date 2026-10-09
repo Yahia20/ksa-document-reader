@@ -1,0 +1,34 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  body { width: 1400px; height: 560px; font-family: Arial, sans-serif; color: #1c2833; }
+  .bp { position: absolute; inset: 20px; border: 2px solid #34495e; border-radius: 16px; overflow: hidden; display: flex; }
+  .main { flex: 1; padding: 0; }
+  .stub { width: 360px; border-left: 3px dashed #7f8c8d; padding: 22px; font-size: 18px; line-height: 1.7; }
+  .h { background: {{ accent }}; color: #fff; padding: 16px 26px; display: flex; justify-content: space-between; font-size: 26px; font-weight: 700; }
+  .h .ar { font-family: "Cairo"; }
+  .g { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px 20px; padding: 18px 26px; }
+  .k { font-size: 14px; color: #7f8c8d; text-transform: uppercase; } .v { font-size: 26px; font-weight: 700; }
+  .route { font-size: 46px; font-weight: 800; letter-spacing: 2px; }
+  .bc { padding: 4px 26px; } .bc svg { height: 120px; width: {{ bc_w }}px; }
+</style></head>
+<body><div class="bp">
+  <div class="main">
+    <div class="h"><span>{{ f.airline_en }} · BOARDING PASS</span><span class="ar">{{ f.airline_ar }} · بطاقة صعود</span></div>
+    <div class="g">
+      <div style="grid-column: span 2"><div class="k">Passenger</div><div class="v">{{ pax }}</div></div>
+      <div><div class="k">Booking ref</div><div class="v">{{ f.pnr }}</div></div>
+      <div><div class="k">Flight</div><div class="v">{{ f.carrier }} {{ f.flight }}</div></div>
+      <div style="grid-column: span 2"><div class="route">{{ f.from }} → {{ f.to }}</div></div>
+      <div><div class="k">Date</div><div class="v">{{ date_print }}</div></div>
+      <div><div class="k">Boarding</div><div class="v">{{ f.boarding }}</div></div>
+      <div><div class="k">Gate</div><div class="v">{{ f.gate }}</div></div>
+      <div><div class="k">Seat</div><div class="v">{{ f.seat }}</div></div>
+      <div><div class="k">Class</div><div class="v">{{ f.cabin }}</div></div>
+      <div><div class="k">Seq</div><div class="v">{{ f.sequence }}</div></div>
+    </div>
+    <div class="bc">{{ bc_svg|safe }}</div>
+  </div>
+  <div class="stub"><b>{{ pax }}</b><br>{{ f.carrier }} {{ f.flight }} · {{ date_print }}<br>{{ f.from }} → {{ f.to }}<br>
+    Seat {{ f.seat }} · Gate {{ f.gate }}<br>Ref {{ f.pnr }}<br><span style="color:#c0392b">SPECIMEN</span></div>
+</div></body></html>

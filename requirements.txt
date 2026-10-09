@@ -1,0 +1,13 @@
+rapidocr>=3.9,<4
+onnxruntime>=1.18
+opencv-python>=4.9
+zxing-cpp>=2.3
+numpy>=1.26
+Pillow>=10
+Jinja2>=3.1
+openpyxl>=3.1
+# synthetic test data only
+playwright>=1.45
+Faker>=30
+# tests
+pytest>=8

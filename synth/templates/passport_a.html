@@ -1,0 +1,48 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  body { width: 1250px; height: 880px; }
+  .page { position: relative; width: 1250px; height: 880px; overflow: hidden; font-family: Arial, sans-serif;
+    background:
+      repeating-radial-gradient(circle at 30% 40%, rgba(46,125,50,.06) 0 2px, transparent 2px 9px),
+      repeating-linear-gradient(115deg, rgba(0,105,92,.05) 0 1px, transparent 1px 7px),
+      linear-gradient(160deg, #eef6ee, #f6f1e3 60%, #e8f1f4);
+    color: #1b2a33; }
+  .hdr { display: flex; justify-content: space-between; align-items: baseline; padding: 26px 46px 6px; }
+  .hdr .en { font-size: 30px; font-weight: 700; letter-spacing: 3px; color: #1b5e20; }
+  .hdr .ar { font-family: "Naskh"; font-size: 36px; font-weight: 700; color: #1b5e20; }
+  .sub { padding: 0 46px; font-size: 18px; color: #37474f; display: flex; justify-content: space-between; }
+  .photo { position: absolute; left: 46px; top: 150px; width: 270px; height: 340px; }
+  .grid { position: absolute; left: 350px; top: 140px; right: 40px; display: grid;
+    grid-template-columns: 1fr 1fr 1fr; gap: 6px 22px; }
+  .f { min-height: 64px; }
+  .f .l { font-size: 15px; color: #546e7a; }
+  .f .l .ar { font-family: "Naskh"; }
+  .f .v { font-size: 25px; font-weight: 700; letter-spacing: .5px; }
+  .f .v.ar { font-family: "Naskh"; font-size: 28px; }
+  .wide { grid-column: span 3; }
+  .two { grid-column: span 2; }
+  .mrz { position: absolute; left: 44px; bottom: 34px; font-size: {{ mrz_size }}px; }
+  .specimen { left: 360px; top: 300px; font-size: 110px; }
+</style></head>
+<body><div class="page">
+  <div class="hdr"><span class="en">UTOPIA</span><span class="ar">يوتوبيا</span></div>
+  <div class="sub"><span>PASSPORT / PASSEPORT</span><span class="ar" style="font-family:Naskh">جواز سفر</span></div>
+  <div class="photo"></div>
+  <div class="grid">
+    <div class="f"><div class="l">Type / <span class="ar">النوع</span></div><div class="v">P</div></div>
+    <div class="f"><div class="l">Code / <span class="ar">الرمز</span></div><div class="v">UTO</div></div>
+    <div class="f"><div class="l">Passport No. / <span class="ar">رقم الجواز</span></div><div class="v">{{ doc_number }}</div></div>
+    <div class="f wide"><div class="l">Surname / <span class="ar">اللقب</span></div><div class="v">{{ surname }}</div></div>
+    <div class="f wide"><div class="l">Given names / <span class="ar">الاسم</span></div><div class="v">{{ given_names }}</div></div>
+    {% if name_ar %}<div class="f wide"><div class="l"><span class="ar">الاسم الكامل</span></div><div class="v ar">{{ name_ar }}</div></div>{% endif %}
+    <div class="f"><div class="l">Nationality / <span class="ar">الجنسية</span></div><div class="v">{{ nationality_name }}</div></div>
+    <div class="f"><div class="l">Date of birth / <span class="ar">تاريخ الميلاد</span></div><div class="v">{{ birth_print }}</div></div>
+    <div class="f"><div class="l">Sex / <span class="ar">الجنس</span></div><div class="v">{{ sex }}</div></div>
+    <div class="f"><div class="l">Place of birth / <span class="ar">محل الميلاد</span></div><div class="v">{{ place_of_birth }}</div></div>
+    <div class="f"><div class="l">Date of issue / <span class="ar">تاريخ الإصدار</span></div><div class="v">{{ issue_print }}</div></div>
+    <div class="f"><div class="l">Date of expiry / <span class="ar">تاريخ الانتهاء</span></div><div class="v">{{ expiry_print }}</div></div>
+  </div>
+  <div class="specimen">SPECIMEN</div>
+  <div class="mrz">{{ mrz }}</div>
+</div></body></html>

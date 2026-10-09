@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  /* 80 mm thermal POS receipt. */
+  body { width: 620px; font-family: "Courier New", monospace; color: #222; background: #fff; }
+  .r { padding: 30px 34px 40px; }
+  .c { text-align: center; }
+  .shop { font-family: "Cairo"; font-size: 30px; font-weight: 800; line-height: 1.3; }
+  .shop-en { font-size: 20px; font-weight: 700; }
+  .s { font-size: 18px; line-height: 1.45; }
+  .ttl { font-family: "Cairo"; font-size: 28px; font-weight: 800; margin: 14px 0 4px; }
+  .ttl-en { font-size: 20px; font-weight: 700; }
+  hr { border: none; border-top: 2px dashed #555; margin: 14px 0; }
+  .it { font-size: 19px; margin: 6px 0; }
+  .it .ar { font-family: "Cairo"; font-size: 20px; }
+  .ln { display: flex; justify-content: space-between; font-size: 19px; }
+  .big { font-size: 24px; font-weight: 700; }
+  .qr { text-align: center; margin-top: 18px; } .qr svg { width: {{ qr_px }}px; height: {{ qr_px }}px; }
+</style></head>
+<body><div class="r">
+  <div class="c"><div class="shop ar">{{ inv.seller.name_ar }}</div><div class="shop-en">{{ inv.seller.name_en }}</div>
+    <div class="s">{{ inv.seller.city[1] }} · {{ inv.seller.street[1] }}<br>VAT No: {{ inv.seller.vat }}</div>
+    <div class="ttl ar">{{ title_ar }}</div><div class="ttl-en">{{ title_en }}</div></div>
+  <hr>
+  <div class="s">No: {{ inv.number }}<br>Date: {{ date_print }}
+    {% if inv.original_number %}<br>Ref: {{ inv.original_number }}<br>{{ inv.reason[1] }}{% endif %}</div>
+  <hr>
+  {% for l in inv.lines %}<div class="it"><div class="ar">{{ l.desc_ar }}</div>
+    <div class="ln"><span>{{ l.qty }} x {{ fmt(l.unit) }}</span><span>{{ fmt(l.net) }}</span></div></div>{% endfor %}
+  <hr>
+  <div class="ln"><span>Subtotal</span><span>{{ fmt(inv.subtotal) }}</span></div>
+  <div class="ln"><span>VAT 15%</span><span>{{ fmt(inv.vat_total) }}</span></div>
+  <div class="ln big"><span>TOTAL</span><span>{{ fmt(inv.total) }}</span></div>
+  <div class="ln"><span class="ar" style="font-family:Cairo">الإجمالي شامل الضريبة</span><span></span></div>
+  <div class="qr">{{ qr_svg|safe }}</div>
+  <div class="c s" style="margin-top:10px">SPECIMEN · شكراً لزيارتكم</div>
+</div></body></html>

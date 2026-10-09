@@ -1,0 +1,63 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  body { width: 1240px; min-height: 1754px; font-family: "Tajawal", Arial, sans-serif; color: #1f2933; }
+  .pg { padding: 60px 70px; }
+  .top { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid {{ accent }};
+    padding-bottom: 18px; }
+  .seller-en { font-size: 26px; font-weight: 700; }
+  .seller-ar { font-size: 30px; font-weight: 700; text-align: right; }
+  .small { font-size: 18px; color: #52606d; line-height: 1.5; }
+  .title { text-align: center; margin: 26px 0 18px; }
+  .title .ar { font-size: 38px; font-weight: 700; color: {{ accent }}; }
+  .title .en { font-size: 26px; letter-spacing: 2px; color: {{ accent }}; }
+  .meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 40px; font-size: 21px; margin-bottom: 20px; }
+  .meta b { font-weight: 700; }
+  .box { border: 1px solid #cbd2d9; padding: 14px 18px; margin-bottom: 22px; font-size: 20px; line-height: 1.55; }
+  table { width: 100%; border-collapse: collapse; font-size: 20px; }
+  th { background: {{ accent }}; color: #fff; padding: 8px 6px; font-weight: 700; font-size: 17px; line-height: 1.25; }
+  td { border-bottom: 1px solid #e4e7eb; padding: 10px 6px; text-align: center; }
+  td.d { text-align: left; } td.d .ar { display: block; text-align: right; font-size: 19px; color: #3e4c59; }
+  .bottom { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 28px; }
+  .tot { width: 600px; font-size: 22px; }
+  .tot div { display: flex; justify-content: space-between; padding: 8px 4px; border-bottom: 1px solid #e4e7eb; }
+  .tot .g { font-weight: 700; font-size: 26px; border-bottom: 3px double #1f2933; }
+  .qr svg { width: {{ qr_px }}px; height: {{ qr_px }}px; }
+  .foot { margin-top: 30px; font-size: 16px; color: #7b8794; text-align: center; }
+</style></head>
+<body><div class="pg">
+  <div class="top">
+    <div><div class="seller-en">{{ inv.seller.name_en }}</div>
+      <div class="small">{{ inv.seller.building }} {{ inv.seller.street[1] }}, {{ inv.seller.district[1] }}<br>
+        {{ inv.seller.city[1] }} {{ inv.seller.postal }}, Saudi Arabia<br>VAT No. {{ inv.seller.vat }} · CR {{ inv.seller.cr }}</div></div>
+    <div class="ar"><div class="seller-ar">{{ inv.seller.name_ar }}</div>
+      <div class="small">{{ inv.seller.street[0] }}، {{ inv.seller.district[0] }}، {{ inv.seller.city[0] }}<br>
+        الرقم الضريبي: {{ inv.seller.vat }}<br>السجل التجاري: {{ inv.seller.cr }}</div></div>
+  </div>
+  <div class="title"><div class="ar">{{ title_ar }}</div><div class="en">{{ title_en|upper }}</div></div>
+  <div class="meta">
+    <div>Invoice No. / <span class="ar">رقم الفاتورة</span>: <b>{{ inv.number }}</b></div>
+    <div>Issue date / <span class="ar">تاريخ الإصدار</span>: <b>{{ date_print }}</b></div>
+    {% if inv.original_number %}<div>Original invoice / <span class="ar">الفاتورة الأصلية</span>: <b>{{ inv.original_number }}</b></div>
+    <div>Reason / <span class="ar">السبب</span>: {{ inv.reason[1] }} - <span class="ar">{{ inv.reason[0] }}</span></div>{% endif %}
+  </div>
+  {% if inv.buyer %}<div class="box"><b>Buyer / <span class="ar">المشتري</span></b><br>
+    {{ inv.buyer.name_en }} — <span class="ar">{{ inv.buyer.name_ar }}</span><br>
+    VAT No. / <span class="ar">الرقم الضريبي</span>: {{ inv.buyer.vat }} · {{ inv.buyer.city[1] }}</div>{% endif %}
+  <table>
+    <tr><th>Description<br>الوصف</th><th>Qty<br>الكمية</th><th>Unit price<br>سعر الوحدة</th>
+      <th>Taxable amount<br>المبلغ الخاضع للضريبة</th><th>VAT 15%<br>الضريبة</th><th>Total<br>الإجمالي</th></tr>
+    {% for l in inv.lines %}<tr><td class="d">{{ l.desc_en }}<span class="ar">{{ l.desc_ar }}</span></td>
+      <td>{{ l.qty }}</td><td>{{ fmt(l.unit) }}</td><td>{{ fmt(l.net) }}</td><td>{{ fmt(l.vat) }}</td>
+      <td>{{ fmt(l.net + l.vat) }}</td></tr>{% endfor %}
+  </table>
+  <div class="bottom">
+    <div class="qr">{{ qr_svg|safe }}</div>
+    <div class="tot">
+      <div><span>Total excl. VAT / <span class="ar">الإجمالي غير شامل الضريبة</span></span><span>{{ fmt(inv.subtotal) }}</span></div>
+      <div><span>VAT 15% / <span class="ar">ضريبة القيمة المضافة</span></span><span>{{ fmt(inv.vat_total) }}</span></div>
+      <div class="g"><span>Total incl. VAT / <span class="ar">الإجمالي شامل الضريبة</span></span><span>{{ fmt(inv.total) }} {{ cur }}</span></div>
+    </div>
+  </div>
+  <div class="foot">This document is a synthetic SPECIMEN for testing. · وثيقة تجريبية</div>
+</div></body></html>

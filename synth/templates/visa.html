@@ -1,0 +1,43 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  /* MRV-A visa sticker, 120 x 80 mm at 10 px/mm, stuck on a passport page. */
+  body { width: 1300px; height: 900px; background: #f4efe4; }
+  .pp { position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(120,100,60,.06) 0 1px, transparent 1px 6px), #f4efe4; }
+  .v { position: absolute; left: 50px; top: 50px; width: 1200px; height: 800px; overflow: hidden; border-radius: 10px;
+    font-family: "Cairo", Arial, sans-serif; color: #1d2b36;
+    background:
+      repeating-radial-gradient(circle at 20% 80%, rgba(198,40,40,.06) 0 3px, transparent 3px 12px),
+      linear-gradient(120deg, #fff6e8, #e9f3fb); box-shadow: 0 0 0 1px #c9b98f; }
+  .h { display: flex; justify-content: space-between; align-items: center; padding: 18px 36px;
+    border-bottom: 2px solid #c62828; }
+  .h .en { font-size: 26px; font-weight: 700; letter-spacing: 3px; color: #b71c1c; }
+  .h .ar { font-size: 30px; font-weight: 700; color: #b71c1c; }
+  .photo { position: absolute; left: 36px; top: 110px; width: 220px; height: 280px; }
+  .g { position: absolute; left: 290px; top: 100px; right: 30px; display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 4px 20px; }
+  .k { font-size: 14px; color: #6b7c8a; } .val { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .span3 { grid-column: span 3; }
+  .mrz { position: absolute; left: 36px; bottom: 30px; font-size: {{ mrz_size }}px; }
+  .specimen { left: 300px; top: 330px; font-size: 100px; }
+</style></head>
+<body><div class="pp"></div><div class="v">
+  <div class="h"><span class="en">UTOPIA · VISA</span><span class="ar">تأشيرة</span></div>
+  <div class="photo"></div>
+  <div class="g">
+    <div><div class="k">Valid from</div><div class="val">{{ issue_print }}</div></div>
+    <div><div class="k">Until</div><div class="val">{{ expiry_print }}</div></div>
+    <div><div class="k">Type of visa</div><div class="val">{{ visa_type }}</div></div>
+    <div><div class="k">Number of entries</div><div class="val">{{ entries }}</div></div>
+    <div><div class="k">Duration of stay</div><div class="val">{{ stay }} days</div></div>
+    <div><div class="k">Visa number</div><div class="val">{{ doc_number }}</div></div>
+    <div class="span3"><div class="k">Name</div><div class="val">{{ surname }}, {{ given_names }}</div></div>
+    <div><div class="k">Nationality</div><div class="val">{{ nationality }}</div></div>
+    <div><div class="k">Date of birth</div><div class="val">{{ birth_print }}</div></div>
+    <div><div class="k">Sex</div><div class="val">{{ sex }}</div></div>
+    <div class="span3"><div class="k">Remarks <span class="ar">ملاحظات</span></div><div class="val">{{ remarks }}</div></div>
+  </div>
+  <div class="specimen">SPECIMEN</div>
+  <div class="mrz">{{ mrz }}</div>
+</div></body></html>

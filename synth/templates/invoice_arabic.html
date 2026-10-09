@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  /* Held-out design: Arabic-only labels, right to left. Used only in the test split. */
+  body { width: 1240px; min-height: 1754px; font-family: "Naskh", serif; color: #1a1a1a; direction: rtl; }
+  .pg { padding: 60px 70px; }
+  .hd { text-align: center; border: 2px solid {{ accent }}; padding: 18px; }
+  .hd .n { font-size: 34px; font-weight: 700; }
+  .hd .i { font-size: 19px; color: #444; line-height: 1.6; }
+  .t { text-align: center; font-size: 36px; font-weight: 700; margin: 26px 0 14px; color: {{ accent }}; }
+  .m { display: flex; justify-content: space-between; font-size: 21px; margin-bottom: 18px; }
+  .b { background: #f6f6f6; padding: 12px 18px; font-size: 20px; margin-bottom: 20px; line-height: 1.6; }
+  table { width: 100%; border-collapse: collapse; font-size: 20px; }
+  th, td { border: 1px solid #999; padding: 8px; text-align: center; }
+  th { background: #eee; }
+  td.d { text-align: right; }
+  .f { display: flex; justify-content: space-between; align-items: flex-start; margin-top: 24px; }
+  .tt { width: 560px; border-collapse: collapse; font-size: 22px; }
+  .tt td { border: 1px solid #999; padding: 8px 12px; }
+  .tt td:last-child { text-align: left; direction: ltr; }
+  .qr svg { width: {{ qr_px }}px; height: {{ qr_px }}px; }
+</style></head>
+<body><div class="pg">
+  <div class="hd"><div class="n">{{ inv.seller.name_ar }}</div>
+    <div class="i">{{ inv.seller.city[0] }} - {{ inv.seller.district[0] }} - {{ inv.seller.street[0] }} - مبنى {{ inv.seller.building }}<br>
+      الرقم الضريبي: {{ inv.seller.vat }} &nbsp;|&nbsp; سجل تجاري: {{ inv.seller.cr }}</div></div>
+  <div class="t">{{ title_ar }}</div>
+  <div class="m"><span>رقم الفاتورة: <b dir="ltr">{{ inv.number }}</b></span><span>التاريخ: <b dir="ltr">{{ date_print }}</b></span></div>
+  {% if inv.original_number %}<div class="m"><span>رقم الفاتورة الأصلية: <b dir="ltr">{{ inv.original_number }}</b></span><span>سبب الإصدار: {{ inv.reason[0] }}</span></div>{% endif %}
+  {% if inv.buyer %}<div class="b">اسم العميل: {{ inv.buyer.name_ar }}<br>الرقم الضريبي للعميل: {{ inv.buyer.vat }}<br>المدينة: {{ inv.buyer.city[0] }}</div>{% endif %}
+  <table>
+    <tr><th>م</th><th>البيان</th><th>الكمية</th><th>السعر</th><th>المبلغ قبل الضريبة</th><th>الضريبة</th></tr>
+    {% for l in inv.lines %}<tr><td>{{ loop.index }}</td><td class="d">{{ l.desc_ar }}</td><td>{{ l.qty }}</td>
+      <td>{{ fmt(l.unit) }}</td><td>{{ fmt(l.net) }}</td><td>{{ fmt(l.vat) }}</td></tr>{% endfor %}
+  </table>
+  <div class="f">
+    <table class="tt">
+      <tr><td>المجموع قبل الضريبة</td><td>{{ fmt(inv.subtotal) }}</td></tr>
+      <tr><td>ضريبة القيمة المضافة ١٥٪</td><td>{{ fmt(inv.vat_total) }}</td></tr>
+      <tr><td><b>المبلغ المستحق</b></td><td><b>{{ fmt(inv.total) }} ر.س</b></td></tr>
+    </table>
+    <div class="qr">{{ qr_svg|safe }}</div>
+  </div>
+  <div style="margin-top:30px;text-align:center;color:#888;font-size:16px">وثيقة تجريبية لأغراض الاختبار · SPECIMEN</div>
+</div></body></html>

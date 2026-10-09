@@ -1,0 +1,42 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  /* Held-out design: used only in the test split. */
+  body { width: 1250px; height: 880px; }
+  .page { position: relative; width: 1250px; height: 880px; overflow: hidden; font-family: Georgia, serif;
+    background:
+      repeating-conic-gradient(from 0deg at 50% 50%, rgba(121,85,72,.05) 0 4deg, transparent 4deg 9deg),
+      linear-gradient(180deg, #f3eadb, #e7ddc9);
+    color: #2b1d14; }
+  .side { position: absolute; left: 0; top: 0; bottom: 0; width: 70px; background: #6d4c41; color: #f3eadb;
+    writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; font-size: 26px; letter-spacing: 10px;
+    display: flex; align-items: center; justify-content: center; }
+  .photo { position: absolute; left: 100px; top: 70px; width: 240px; height: 300px; }
+  .title { position: absolute; left: 370px; top: 30px; font-size: 22px; letter-spacing: 2px; }
+  .title .ar { font-family: "Naskh"; font-size: 26px; margin-left: 20px; }
+  table { position: absolute; left: 370px; top: 80px; border-collapse: collapse; width: 830px; }
+  td { padding: 4px 8px 6px 0; vertical-align: top; }
+  td.k { width: 230px; font-size: 16px; color: #6d4c41; font-style: italic; }
+  td.v { font-size: 25px; font-family: "Courier New", monospace; font-weight: 700; }
+  td.v.ar { font-family: "Naskh"; font-size: 27px; font-weight: 700; }
+  .mrz { position: absolute; left: 100px; bottom: 40px; font-size: {{ mrz_size }}px; }
+  .specimen { left: 420px; top: 420px; font-size: 100px; }
+</style></head>
+<body><div class="page">
+  <div class="side">UTOPIA</div>
+  <div class="photo"></div>
+  <div class="title">PASSPORT<span class="ar">جواز السفر</span></div>
+  <table>
+    <tr><td class="k">Type / Code</td><td class="v">P &nbsp; UTO</td></tr>
+    <tr><td class="k">Passport No.</td><td class="v">{{ doc_number }}</td></tr>
+    <tr><td class="k">Surname</td><td class="v">{{ surname }}</td></tr>
+    <tr><td class="k">Given names</td><td class="v">{{ given_names }}</td></tr>
+    {% if name_ar %}<tr><td class="k">الاسم بالعربية</td><td class="v ar">{{ name_ar }}</td></tr>{% endif %}
+    <tr><td class="k">Nationality</td><td class="v">{{ nationality_name }}</td></tr>
+    <tr><td class="k">Date of birth</td><td class="v">{{ birth_print }}</td></tr>
+    <tr><td class="k">Sex · Place of birth</td><td class="v">{{ sex }} &nbsp; {{ place_of_birth }}</td></tr>
+    <tr><td class="k">Issued · Expires</td><td class="v">{{ issue_print }} &nbsp; {{ expiry_print }}</td></tr>
+  </table>
+  <div class="specimen">SPECIMEN</div>
+  <div class="mrz">{{ mrz }}</div>
+</div></body></html>

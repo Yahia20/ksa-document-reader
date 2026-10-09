@@ -1,0 +1,27 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  /* Not one of the supported types: an account statement with an ordinary QR link,
+     to check that any QR code is not taken for a ZATCA invoice. */
+  body { width: 1240px; min-height: 1500px; font-family: "Cairo", Arial, sans-serif; color: #212121; }
+  .pg { padding: 60px 70px; }
+  .h { display: flex; justify-content: space-between; align-items: center; }
+  .h .n { font-size: 30px; font-weight: 800; }
+  .qr svg { width: 160px; height: 160px; }
+  .t { font-size: 30px; font-weight: 700; margin: 26px 0 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 19px; }
+  th { background: #eeeeee; text-align: left; padding: 8px; }
+  td { padding: 8px; border-bottom: 1px solid #e0e0e0; }
+  td.n { text-align: right; }
+</style></head>
+<body><div class="pg">
+  <div class="h"><div><div class="n">{{ company_en }}</div><div class="ar">{{ company_ar }}</div></div>
+    <div class="qr">{{ qr_svg|safe }}</div></div>
+  <div class="t">Statement of account · <span class="ar">كشف حساب</span></div>
+  <div>Customer: {{ customer }} · Period: {{ period }}</div>
+  <table style="margin-top:16px">
+    <tr><th>Date</th><th>Description</th><th style="text-align:right">Debit</th><th style="text-align:right">Credit</th></tr>
+    {% for r in rows %}<tr><td>{{ r[0] }}</td><td>{{ r[1] }}</td><td class="n">{{ r[2] }}</td><td class="n">{{ r[3] }}</td></tr>{% endfor %}
+  </table>
+  <p style="margin-top:20px;color:#9e9e9e">SPECIMEN · Scan the code to view your account online.</p>
+</div></body></html>

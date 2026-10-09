@@ -1,0 +1,49 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  /* ID card, both sides on one page, as in a photocopy. 85.6 x 54 mm at 10 px/mm. */
+  body { width: 960px; height: 1260px; background: #fff; }
+  .card { position: absolute; left: 52px; width: 856px; height: 540px; border-radius: 30px; overflow: hidden;
+    box-shadow: 0 0 0 1px #b0bec5; font-family: "Cairo", Arial, sans-serif; color: #102a43;
+    background:
+      repeating-radial-gradient(circle at 80% 20%, rgba(0,121,107,.07) 0 2px, transparent 2px 10px),
+      linear-gradient(135deg, {{ c1 }}, {{ c2 }}); }
+  .front { top: 50px; } .back { top: 660px; }
+  .top { display: flex; justify-content: space-between; padding: 18px 34px 0; font-weight: 700; }
+  .top .en { font-size: 22px; letter-spacing: 2px; } .top .ar { font-size: 26px; }
+  .photo { position: absolute; left: 34px; top: 100px; width: 200px; height: 250px; border-radius: 8px; }
+  .fl { position: absolute; left: 264px; top: 92px; right: 30px; }
+  .k { font-size: 14px; color: #486581; } .v { font-size: 23px; font-weight: 700; margin-bottom: 6px; }
+  .v.ar { font-size: 25px; }
+  .row { display: flex; gap: 30px; }
+  .mrz { position: absolute; left: 44px; bottom: 26px; font-size: {{ mrz_size }}px; }
+  .backinfo { padding: 26px 40px; font-size: 18px; line-height: 1.6; }
+  .specimen { left: 260px; top: 210px; font-size: 80px; }
+</style></head>
+<body>
+<div class="card front">
+  <div class="top"><span class="en">UTOPIA · IDENTITY CARD</span><span class="ar">بطاقة الهوية</span></div>
+  <div class="photo"></div>
+  <div class="fl">
+    {% if name_ar %}<div class="k ar">الاسم</div><div class="v ar">{{ name_ar }}</div>{% endif %}
+    <div class="k">Surname</div><div class="v">{{ surname }}</div>
+    <div class="k">Given names</div><div class="v">{{ given_names }}</div>
+    <div class="row">
+      <div><div class="k">Sex</div><div class="v">{{ sex }}</div></div>
+      <div><div class="k">Nationality</div><div class="v">{{ nationality }}</div></div>
+      <div><div class="k">Date of birth</div><div class="v">{{ birth_print }}</div></div>
+    </div>
+    <div class="row">
+      <div><div class="k">Card number</div><div class="v">{{ doc_number }}</div></div>
+      <div><div class="k">Expiry</div><div class="v">{{ expiry_print }}</div></div>
+    </div>
+  </div>
+  <div class="specimen">SPECIMEN</div>
+</div>
+<div class="card back">
+  <div class="backinfo">Place of birth: {{ place_of_birth }}<br>Date of issue: {{ issue_print }}<br>
+    <span class="ar">جهة الإصدار: وزارة الداخلية - يوتوبيا</span></div>
+  <div class="specimen" style="top:140px">SPECIMEN</div>
+  <div class="mrz">{{ mrz }}</div>
+</div>
+</body></html>

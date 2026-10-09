@@ -1,0 +1,37 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  /* TD2 document, 105 x 74 mm at 10 px/mm. */
+  body { width: 1050px; height: 740px; }
+  .card { position: relative; width: 1050px; height: 740px; overflow: hidden; font-family: Arial, sans-serif;
+    color: #26323a;
+    background:
+      repeating-linear-gradient(30deg, rgba(94,53,177,.05) 0 2px, transparent 2px 9px),
+      linear-gradient(200deg, #f1ecf9, #eef7f6); }
+  .t { padding: 22px 36px 0; display: flex; justify-content: space-between; font-weight: 700; color: #4527a0; }
+  .t .en { font-size: 24px; letter-spacing: 2px; } .t .ar { font-family: "Naskh"; font-size: 28px; }
+  .photo { position: absolute; right: 40px; top: 90px; width: 230px; height: 290px; }
+  .fl { position: absolute; left: 36px; top: 84px; width: 680px; }
+  .k { font-size: 14px; color: #7e57c2; } .v { font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+  .v.ar { font-family: "Naskh"; font-size: 26px; }
+  .row { display: flex; gap: 40px; }
+  .mrz { position: absolute; left: 40px; bottom: 30px; font-size: {{ mrz_size }}px; }
+  .specimen { left: 160px; top: 300px; font-size: 96px; }
+</style></head>
+<body><div class="card">
+  <div class="t"><span class="en">UTOPIA · TRAVEL DOCUMENT</span><span class="ar">وثيقة سفر</span></div>
+  <div class="photo"></div>
+  <div class="fl">
+    <div class="row"><div><div class="k">Type</div><div class="v">{{ code }}</div></div>
+      <div><div class="k">Document no.</div><div class="v">{{ doc_number }}</div></div></div>
+    <div class="k">Surname</div><div class="v">{{ surname }}</div>
+    <div class="k">Given names</div><div class="v">{{ given_names }}</div>
+    {% if name_ar %}<div class="v ar">{{ name_ar }}</div>{% endif %}
+    <div class="row"><div><div class="k">Nationality</div><div class="v">{{ nationality }}</div></div>
+      <div><div class="k">Date of birth</div><div class="v">{{ birth_print }}</div></div>
+      <div><div class="k">Sex</div><div class="v">{{ sex }}</div></div></div>
+    <div class="row"><div><div class="k">Date of expiry</div><div class="v">{{ expiry_print }}</div></div></div>
+  </div>
+  <div class="specimen">SPECIMEN</div>
+  <div class="mrz">{{ mrz }}</div>
+</div></body></html>

@@ -1,0 +1,30 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><link rel="stylesheet" href="base.css">
+<style>
+  /* Held-out design: mobile boarding pass, used only in the test split. */
+  body { width: 720px; height: 1280px; font-family: "Cairo", Arial, sans-serif; background: #eceff1; }
+  .card { margin: 40px; background: #fff; border-radius: 28px; overflow: hidden; box-shadow: 0 6px 24px rgba(0,0,0,.15); }
+  .h { background: {{ accent }}; color: #fff; padding: 26px 30px; }
+  .h .a { font-size: 28px; font-weight: 800; } .h .s { font-size: 18px; opacity: .85; }
+  .rt { display: flex; justify-content: space-between; padding: 26px 30px 6px; }
+  .rt .c { font-size: 56px; font-weight: 800; color: #263238; }
+  .rt .x { font-size: 40px; color: #90a4ae; padding-top: 10px; }
+  .g { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; padding: 10px 30px 20px; }
+  .k { font-size: 15px; color: #78909c; } .v { font-size: 25px; font-weight: 700; color: #263238; }
+  .bc { text-align: center; padding: 24px 0 34px; border-top: 2px dashed #cfd8dc; }
+  .bc svg { width: {{ bc_w }}px; height: {{ bc_w }}px; }
+</style></head>
+<body><div class="card">
+  <div class="h"><div class="a">{{ f.airline_en }}</div><div class="s">Boarding pass · بطاقة صعود الطائرة</div></div>
+  <div class="rt"><span class="c">{{ f.from }}</span><span class="x">✈</span><span class="c">{{ f.to }}</span></div>
+  <div class="g">
+    <div style="grid-column: span 2"><div class="k">Passenger</div><div class="v">{{ pax }}</div></div>
+    <div><div class="k">Flight</div><div class="v">{{ f.carrier }}{{ f.flight }}</div></div>
+    <div><div class="k">Date</div><div class="v">{{ date_print }}</div></div>
+    <div><div class="k">Seat</div><div class="v">{{ f.seat }}</div></div>
+    <div><div class="k">Boarding</div><div class="v">{{ f.boarding }}</div></div>
+    <div><div class="k">Gate</div><div class="v">{{ f.gate }}</div></div>
+    <div><div class="k">Booking ref</div><div class="v">{{ f.pnr }}</div></div>
+  </div>
+  <div class="bc">{{ bc_svg|safe }}<div style="color:#b0bec5;font-size:15px;margin-top:6px">SPECIMEN</div></div>
+</div></body></html>

@@ -1,0 +1,350 @@
+{%- macro t(en, ar) -%}<span class="t-en">{{ en }}</span><span class="t-ar">{{ ar }}</span>{%- endmacro -%}
+{%- macro chip(status) -%}
+{%- if status == "verified" -%}<span class="chip ok" title="verified"><b aria-hidden="true">✓</b>{{ t("Verified", "مُثبت") }}</span>
+{%- elif status == "read" -%}<span class="chip rd" title="read"><b aria-hidden="true">?</b>{{ t("Read", "مقروء") }}</span>
+{%- else -%}<span class="chip rv" title="review"><b aria-hidden="true">!</b>{{ t("Review", "مراجعة") }}</span>{%- endif -%}
+{%- endmacro -%}
+{%- set o = m.overall -%}
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saudi Document Reader</title>
+<meta name="description" content="Reads passports, ID cards, visas, ZATCA invoices and boarding passes from a photo, and proves each field before it reaches your system.">
+<style>
+:root {
+  color-scheme: light;
+  --page: #f9f9f7; --surface: #fcfcfb; --card: #ffffff;
+  --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --ring: rgba(11,11,11,.10);
+  --accent: #2a78d6; --accent-ink: #1c5cab; --baseline: #b9b7ae;
+  --good: #0ca30c; --good-ink: #006300; --warn: #fab219; --warn-ink: #7a5300; --serious: #ec835a; --serious-ink: #9a3a12;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --card: #161615;
+    --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,.10);
+    --accent: #3987e5; --accent-ink: #86b6ef; --baseline: #5c5b57;
+    --good-ink: #0ca30c; --warn-ink: #fab219; --serious-ink: #ec835a;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --page: #0d0d0d; --surface: #1a1a19; --card: #161615;
+  --ink: #ffffff; --ink-2: #c3c2b7; --muted: #898781;
+  --grid: #2c2c2a; --axis: #383835; --ring: rgba(255,255,255,.10);
+  --accent: #3987e5; --accent-ink: #86b6ef; --baseline: #5c5b57;
+  --good-ink: #0ca30c; --warn-ink: #fab219; --serious-ink: #ec835a;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--page); color: var(--ink); font: 16px/1.6 system-ui, -apple-system, "Segoe UI", sans-serif; }
+html[lang="ar"] body { font-family: "Segoe UI", Tahoma, system-ui, sans-serif; }
+html[lang="en"] .t-ar, html[lang="ar"] .t-en { display: none; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+header.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px 0 0; }
+.kicker { color: var(--muted); font-size: 14px; letter-spacing: .02em; }
+.btn { font: inherit; font-size: 14px; color: var(--ink); background: var(--card); border: 1px solid var(--ring);
+  border-radius: 8px; padding: 6px 12px; cursor: pointer; }
+.btn:hover { border-color: var(--axis); }
+h1 { font-size: clamp(28px, 4.6vw, 44px); line-height: 1.15; margin: 22px 0 12px; letter-spacing: -.01em; }
+h2 { font-size: clamp(22px, 3vw, 28px); margin: 0 0 6px; line-height: 1.25; }
+h3 { font-size: 18px; margin: 0 0 4px; }
+.lead { font-size: 18px; color: var(--ink-2); max-width: 780px; margin: 0 0 22px; }
+section { padding: 34px 0; border-top: 1px solid var(--grid); }
+section.first { border-top: 0; padding-top: 8px; }
+.sub { color: var(--ink-2); margin: 0 0 18px; max-width: 760px; }
+.answer { list-style: none; padding: 0; margin: 0 0 26px; display: grid; gap: 10px; }
+.answer li { background: var(--card); border: 1px solid var(--ring); border-radius: 12px; padding: 14px 16px; }
+.answer b { font-size: 18px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+.tile { background: var(--card); border: 1px solid var(--ring); border-radius: 12px; padding: 16px; }
+.tile .v { font-size: 34px; font-weight: 650; line-height: 1.1; }
+.tile .l { color: var(--ink-2); font-size: 14px; margin-top: 6px; }
+.tile .n { color: var(--muted); font-size: 13px; margin-top: 4px; }
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; counter-reset: s; }
+.step { background: var(--card); border: 1px solid var(--ring); border-radius: 12px; padding: 14px; position: relative; }
+.step::before { counter-increment: s; content: counter(s); display: inline-grid; place-items: center; width: 26px; height: 26px;
+  border-radius: 50%; background: var(--accent); color: #fff; font-size: 13px; font-weight: 700; margin-bottom: 8px; }
+.step p { margin: 0; color: var(--ink-2); font-size: 14px; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 600; border-radius: 999px;
+  padding: 1px 9px 1px 4px; white-space: nowrap; border: 1px solid var(--ring); background: var(--surface); }
+.chip b { display: inline-grid; place-items: center; width: 17px; height: 17px; border-radius: 50%; color: #fff; font-size: 11px; }
+.chip.ok { color: var(--good-ink); } .chip.ok b { background: var(--good); }
+.chip.rd { color: var(--warn-ink); } .chip.rd b { background: var(--warn); color: #3a2700; }
+.chip.rv { color: var(--serious-ink); } .chip.rv b { background: var(--serious); }
+.legend3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 10px; margin-top: 14px; }
+.legend3 > div { background: var(--card); border: 1px solid var(--ring); border-radius: 12px; padding: 12px 14px; font-size: 14px; color: var(--ink-2); }
+.ex { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 16px; background: var(--card);
+  border: 1px solid var(--ring); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+.ex img { width: 100%; height: auto; border-radius: 8px; display: block; background: var(--surface); }
+.ex .meta { color: var(--muted); font-size: 13px; margin-bottom: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { text-align: start; padding: 6px 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 13px; }
+td.num, th.num { text-align: end; font-variant-numeric: tabular-nums; }
+td.val { word-break: break-word; font-variant-numeric: tabular-nums; }
+.src { color: var(--muted); font-size: 12px; }
+.chart { background: var(--surface); border: 1px solid var(--ring); border-radius: 12px; padding: 14px 16px; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--ink-2); margin: 0 0 10px; }
+.legend > span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-inline-end: 6px; vertical-align: -1px; background: var(--c); }
+.brow { display: grid; grid-template-columns: minmax(110px, 190px) minmax(0, 1fr) 64px; gap: 10px; align-items: center; padding: 5px 0; }
+.brow .lab { font-size: 14px; color: var(--ink); }
+.brow .end { font-size: 13px; text-align: end; font-variant-numeric: tabular-nums; color: var(--ink-2); }
+.stack { display: flex; gap: 2px; height: 18px; }
+.stack i { display: block; height: 100%; cursor: default; min-width: 2px; }
+.stack i:first-child { border-start-start-radius: 4px; border-end-start-radius: 4px; }
+.stack i:last-child { border-start-end-radius: 4px; border-end-end-radius: 4px; }
+.seg-ok { background: var(--good); } .seg-rd { background: var(--warn); } .seg-rv { background: var(--serious); }
+.bars .brow { grid-template-columns: minmax(150px, 260px) minmax(0, 1fr) 64px; }
+.bar { height: 20px; background: var(--baseline); border-radius: 0 4px 4px 0; max-width: 100%; }
+html[dir="rtl"] .bar { border-radius: 4px 0 0 4px; }
+.bar.me { background: var(--accent); }
+.track { border-inline-start: 1px solid var(--axis); }
+details { margin-top: 10px; max-width: 100%; overflow-x: auto; }
+summary { cursor: pointer; color: var(--accent-ink); font-size: 14px; }
+.note { color: var(--muted); font-size: 13px; margin-top: 8px; }
+.limits li { margin-bottom: 8px; color: var(--ink-2); }
+.tech li { margin-bottom: 6px; color: var(--ink-2); font-size: 15px; }
+code { font-family: ui-monospace, Consolas, monospace; font-size: 13px; background: var(--surface); border: 1px solid var(--ring); border-radius: 5px; padding: 0 4px; }
+pre { background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: 13px; direction: ltr; text-align: left; }
+#tip { position: fixed; pointer-events: none; z-index: 10; background: var(--card); color: var(--ink); border: 1px solid var(--ring);
+  box-shadow: 0 6px 20px rgba(0,0,0,.18); border-radius: 8px; padding: 6px 10px; font-size: 13px; display: none; max-width: 260px; }
+footer { color: var(--muted); font-size: 13px; padding: 28px 0 40px; border-top: 1px solid var(--grid); }
+a { color: var(--accent-ink); }
+@media (max-width: 760px) {
+  .ex { grid-template-columns: 1fr; }
+  .brow, .bars .brow { grid-template-columns: 100px minmax(0, 1fr) 54px; }
+  .hide-sm { display: none; }
+}
+</style>
+</head>
+<body>
+<div id="tip" role="tooltip"></div>
+<div class="wrap">
+<header class="top">
+  <span class="kicker">{{ t("Computer vision · OCR · Saudi e-invoicing", "رؤية حاسوبية · قراءة النصوص · الفوترة الإلكترونية السعودية") }}</span>
+  <button class="btn" id="lang" type="button">العربية</button>
+</header>
+
+<section class="first">
+  <h1>{{ t("Read IDs and invoices from a photo, and know which fields you can trust",
+           "اقرأ الهويات والفواتير من صورة، واعرف أي البيانات يمكنك الوثوق بها") }}</h1>
+  <p class="lead">{{ t("A reader for the documents Saudi businesses handle every day: passports, ID cards, visas, ZATCA tax invoices and boarding passes. Every field it returns carries a status: proven, read but unproven, or sent to a person.",
+     "قارئ للمستندات التي تتعامل معها الشركات السعودية يوميًا: جوازات السفر وبطاقات الهوية والتأشيرات وفواتير هيئة الزكاة والضريبة والجمارك وبطاقات صعود الطائرة. وكل معلومة يستخرجها تأتي بحالتها: مُثبتة، أو مقروءة دون إثبات، أو محالة لشخص يراجعها.") }}</p>
+
+  <ul class="answer">
+    <li><b>{{ pct(o.verified_precision) }}</b> {{ t("of the fields it marks as verified are correct,", "من البيانات التي يعتبرها مُثبتة صحيحة،") }}
+      {{ t("across " ~ m.documents ~ " test documents that were never used while building it.", "على " ~ m.documents ~ " مستند اختبار لم تُستخدم أثناء بنائه.") }}</li>
+    <li><b>{{ pct(o.automation_rate, 0) }}</b> {{ t("of all fields come back verified and can go straight into your system. The rest are flagged with the reason, so a person checks only those.",
+        "من كل البيانات تخرج مُثبتة ويمكن إدخالها في نظامك مباشرة. والباقي يُعلَّم مع السبب، فيراجع الموظف هذه فقط.") }}</li>
+    {% if midv %}<li><b>{{ pct(midv.verified_field_precision) }}</b> {{ t("of the passport fields it marked as verified on real phone video were correct (" ~ "{:,}".format(midv.verified_fields) ~ " fields, 3,315 frames). Reading the whole MRZ exactly, it got " ~ pct(midv.exact_mrz_rate) ~ " of frames: behind the commercial Dynamsoft SDK (48.3%), far ahead of the open-source tools (7.3% and 0.3%).",
+        "من بيانات الجوازات التي اعتبرها مُثبتة في فيديوهات جوال حقيقية كانت صحيحة (" ~ "{:,}".format(midv.verified_fields) ~ " معلومة، 3,315 لقطة). أما قراءة السطرين الآليين كاملين بلا خطأ فنجح فيها في " ~ pct(midv.exact_mrz_rate) ~ " من اللقطات: أقل من مكتبة Dynamsoft التجارية (48.3%)، وأعلى بكثير من الأدوات المفتوحة المصدر (7.3% و0.3%).") }}</li>{% endif %}
+  </ul>
+
+  <div class="tiles">
+    <div class="tile"><div class="v">{{ pct(o.verified_precision) }}</div><div class="l">{{ t("verified fields that are correct", "من البيانات المُثبتة صحيحة") }}</div>
+      <div class="n">{{ t(o.verified_correct ~ " of " ~ o.verified ~ " fields", o.verified_correct ~ " من " ~ o.verified ~ " معلومة") }}</div></div>
+    <div class="tile"><div class="v">{{ pct(o.automation_rate, 0) }}</div><div class="l">{{ t("fields that need no person", "من البيانات لا تحتاج مراجعة") }}</div>
+      <div class="n">{{ t(o.fields ~ " fields in total", o.fields ~ " معلومة إجمالًا") }}</div></div>
+    <div class="tile"><div class="v">{{ pct(m.doc_type_accuracy) }}</div><div class="l">{{ t("documents sorted into the right type", "من المستندات صُنّفت في نوعها الصحيح") }}</div>
+      <div class="n">{{ t("10 types, including “not a supported document”", "10 أنواع، منها «مستند غير مدعوم»") }}</div></div>
+    <div class="tile"><div class="v">{{ "%.1f"|format(m.seconds_per_doc) }} {{ t("s", "ث") }}</div><div class="l">{{ t("to read one document", "لقراءة المستند الواحد") }}</div>
+      <div class="n">{{ t("on average, across all 600", "في المتوسط، على الـ 600 كلها") }}</div></div>
+  </div>
+</section>
+
+<section>
+  <h2>{{ t("How it reads a document", "كيف يقرأ المستند") }}</h2>
+  <p class="sub">{{ t("The reader relies first on what the documents themselves can prove. Passports, invoices and boarding passes all carry machine-readable data with error checks built in. The text recognition is cross-checked against that data.",
+     "يعتمد القارئ أولًا على ما تستطيع المستندات نفسها إثباته. فجوازات السفر والفواتير وبطاقات الصعود كلها تحمل بيانات مقروءة آليًا فيها وسائل تحقق مدمجة. ثم يُطابَق النص المقروء بهذه البيانات.") }}</p>
+  <div class="steps">
+    <div class="step"><h3>{{ t("Flatten the photo", "تسوية الصورة") }}</h3><p>{{ t("Finds the document's four corners and straightens it, like a scanner app.", "يجد زوايا المستند الأربع ويعدّله كأنه ممسوح ضوئيًا.") }}</p></div>
+    <div class="step"><h3>{{ t("Decode barcodes", "قراءة الباركود") }}</h3><p>{{ t("ZATCA invoice QR codes and IATA boarding-pass barcodes. Both have built-in error correction.", "رمز QR في فواتير الزكاة وباركود بطاقات الصعود، وكلاهما فيه تصحيح أخطاء مدمج.") }}</p></div>
+    <div class="step"><h3>{{ t("Read the text twice", "قراءة النص مرتين") }}</h3><p>{{ t("Two open-source models: PP-OCRv6 for Latin text and numbers, PP-OCRv5 Arabic for Arabic.", "نموذجان مفتوحا المصدر: PP-OCRv6 للنص اللاتيني والأرقام، وPP-OCRv5 للعربية.") }}</p></div>
+    <div class="step"><h3>{{ t("Check against the standard", "المطابقة مع المعيار") }}</h3><p>{{ t("Passport check digits (ICAO 9303), ZATCA QR values, VAT = 15%, line items adding up.", "أرقام التحقق في الجواز (ICAO 9303)، وقيم QR الضريبي، والضريبة = 15%، ومجموع البنود.") }}</p></div>
+    <div class="step"><h3>{{ t("Give every field a status", "حالة لكل معلومة") }}</h3><p>{{ t("Verified, read or review, with the reason. Nothing uncertain is passed off as certain.", "مُثبتة أو مقروءة أو للمراجعة، مع السبب. لا يُقدَّم شيء غير مؤكد على أنه مؤكد.") }}</p></div>
+  </div>
+  <div class="legend3">
+    <div>{{ chip("verified") }} {{ t("Proven independently: a check digit, an error-corrected barcode, the invoice arithmetic, or two separate reads that agree.", "مُثبتة بشكل مستقل: رقم تحقق، أو باركود مصحَّح الأخطاء، أو حساب الفاتورة، أو قراءتان منفصلتان متطابقتان.") }}</div>
+    <div>{{ chip("read") }} {{ t("Read once and looks right, but nothing confirms it. A person glances at it.", "قُرئت مرة وتبدو صحيحة، لكن لا شيء يؤكدها. يلقي الموظف نظرة عليها.") }}</div>
+    <div>{{ chip("review") }} {{ t("A check failed, two readings disagree, or the field was not found.", "فشل تحقق، أو اختلفت قراءتان، أو لم توجد المعلومة.") }}</div>
+  </div>
+</section>
+
+<section>
+  <h2>{{ t("Examples from the test set", "أمثلة من مجموعة الاختبار") }}</h2>
+  <p class="sub">{{ t("Real output on test images. Every document is a synthetic SPECIMEN: the people, companies and VAT numbers are invented, and the passports are issued by “Utopia”, the specimen country of the ICAO standard.",
+     "نتائج فعلية على صور الاختبار. كل المستندات نماذج تجريبية (SPECIMEN): الأشخاص والشركات والأرقام الضريبية مختلَقة، والجوازات صادرة من «يوتوبيا»، الدولة التجريبية في معيار ICAO.") }}</p>
+  {% for ex in examples %}
+  <div class="ex">
+    <div><img src="{{ ex.image }}" alt="{{ ex.type[0] }}, {{ ex.level[0]|lower }}"></div>
+    <div>
+      <h3>{{ t(ex.type[0], ex.type[1]) }}</h3>
+      <div class="meta">{{ t(ex.level[0], ex.level[1]) }}{% if ex.heldout %} · {{ t("a layout it never saw during development", "تصميم لم يره أثناء التطوير") }}{% endif %} · {{ ex.seconds }} {{ t("s", "ث") }}</div>
+      <table>
+        <thead><tr><th>{{ t("Field", "المعلومة") }}</th><th>{{ t("Value", "القيمة") }}</th><th>{{ t("Status", "الحالة") }}</th><th class="hide-sm">{{ t("Source", "المصدر") }}</th></tr></thead>
+        <tbody>
+        {% for f in ex.fields %}<tr><td>{{ t(f.name[0], f.name[1]) }}</td><td class="val" dir="auto">{{ f.value }}</td><td>{{ chip(f.status) }}</td>
+          <td class="hide-sm src">{{ t(f.source[0], f.source[1]) }}</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endfor %}
+</section>
+
+<section>
+  <h2>{{ t("Results by document type", "النتائج حسب نوع المستند") }}</h2>
+  <p class="sub">{{ t(m.documents ~ " test documents, 60 of each type: 30% scans, 45% phone photos, 25% difficult photos (tilted, blurred, shadowed, with glare). The bar shows what share of fields came back verified, read or for review; the number on the right is the share of verified fields that are correct.",
+     m.documents ~ " مستند اختبار، 60 من كل نوع: 30% ممسوحة ضوئيًا، و45% صور بالجوال، و25% صور صعبة (مائلة ومهزوزة وفيها ظل ولمعان). يوضح الشريط نسبة البيانات المُثبتة والمقروءة والمحالة للمراجعة، والرقم على اليمين نسبة البيانات المُثبتة الصحيحة.") }}</p>
+  <div class="chart">
+    <div class="legend"><span style="--c: var(--good)">{{ t("Verified", "مُثبتة") }}</span><span style="--c: var(--warn)">{{ t("Read", "مقروءة") }}</span><span style="--c: var(--serious)">{{ t("Review", "مراجعة") }}</span></div>
+    {% for k, a in m.by_doc_type.items() %}
+    <div class="brow"><div class="lab">{{ t(types[k][0], types[k][1]) }}</div>
+      <div class="stack">
+        <i class="seg-ok" style="flex: {{ a.verified }}" data-tip="{{ a.verified }} / {{ a.fields }}"></i>
+        <i class="seg-rd" style="flex: {{ a.read }}" data-tip="{{ a.read }} / {{ a.fields }}"></i>
+        <i class="seg-rv" style="flex: {{ a.review }}" data-tip="{{ a.review }} / {{ a.fields }}"></i>
+      </div>
+      <div class="end">{{ pct(a.verified_precision) }}</div></div>
+    {% endfor %}
+    <details><summary>{{ t("Show as a table", "اعرض كجدول") }}</summary>
+      <table><thead><tr><th>{{ t("Type", "النوع") }}</th><th class="num">{{ t("Fields", "البيانات") }}</th><th class="num">{{ t("Verified", "مُثبتة") }}</th>
+        <th class="num">{{ t("Verified correct", "المُثبتة الصحيحة") }}</th><th class="num">{{ t("Read", "مقروءة") }}</th><th class="num">{{ t("Read correct", "المقروءة الصحيحة") }}</th><th class="num">{{ t("Review", "مراجعة") }}</th></tr></thead>
+      <tbody>{% for k, a in m.by_doc_type.items() %}<tr><td>{{ t(types[k][0], types[k][1]) }}</td><td class="num">{{ a.fields }}</td><td class="num">{{ a.verified }}</td>
+        <td class="num">{{ pct(a.verified_precision) }}</td><td class="num">{{ a.read }}</td><td class="num">{{ pct(a.read_accuracy) }}</td><td class="num">{{ a.review }}</td></tr>{% endfor %}</tbody></table>
+    </details>
+  </div>
+
+  <h3 style="margin-top:26px">{{ t("By image quality", "حسب جودة الصورة") }}</h3>
+  <div class="chart">
+    {% for k in ["scan", "photo", "hard"] %}{% set a = m.by_level[k] %}
+    <div class="brow"><div class="lab">{{ t(levels[k][0], levels[k][1]) }}</div>
+      <div class="stack">
+        <i class="seg-ok" style="flex: {{ a.verified }}" data-tip="{{ a.verified }} / {{ a.fields }}"></i>
+        <i class="seg-rd" style="flex: {{ a.read }}" data-tip="{{ a.read }} / {{ a.fields }}"></i>
+        <i class="seg-rv" style="flex: {{ a.review }}" data-tip="{{ a.review }} / {{ a.fields }}"></i>
+      </div>
+      <div class="end">{{ pct(a.verified_precision) }}</div></div>
+    {% endfor %}
+    <p class="note">{{ t("Worse photos mean fewer verified fields, not more wrong ones: the reader sends what it cannot prove to a person.",
+       "كلما ساءت الصورة قلّت البيانات المُثبتة، لا زادت الأخطاء: القارئ يحيل ما لا يستطيع إثباته إلى شخص.") }}</p>
+  </div>
+
+  {% set h = m.by_heldout_template %}{% if h.get("true") %}
+  <h3 style="margin-top:26px">{{ t("Layouts it never saw", "تصميمات لم يرها") }}</h3>
+  <p class="sub">{{ t("One design per family (a passport, an Arabic-only invoice, a mobile boarding pass) was kept out of development and used only in this test.",
+     "تصميم واحد من كل عائلة (جواز سفر، وفاتورة بالعربية فقط، وبطاقة صعود للجوال) أُبعد عن التطوير واستُخدم في هذا الاختبار فقط.") }}</p>
+  <table style="max-width:640px"><thead><tr><th></th><th class="num">{{ t("Fields", "البيانات") }}</th><th class="num">{{ t("Verified correct", "المُثبتة الصحيحة") }}</th><th class="num">{{ t("Need no person", "لا تحتاج مراجعة") }}</th></tr></thead>
+    <tbody><tr><td>{{ t("Designs used in development", "تصميمات استُخدمت في التطوير") }}</td><td class="num">{{ h["false"].fields }}</td><td class="num">{{ pct(h["false"].verified_precision) }}</td><td class="num">{{ pct(h["false"].automation_rate, 0) }}</td></tr>
+    <tr><td>{{ t("Designs never seen", "تصميمات لم يرها") }}</td><td class="num">{{ h["true"].fields }}</td><td class="num">{{ pct(h["true"].verified_precision) }}</td><td class="num">{{ pct(h["true"].automation_rate, 0) }}</td></tr></tbody></table>
+  {% endif %}
+</section>
+
+{% if midv %}
+<section>
+  <h2>{{ t("Real photos: passports filmed with a phone", "صور حقيقية: جوازات سفر مصوّرة بالجوال") }}</h2>
+  <p class="sub">{{ t("Synthetic tests can flatter. So the passport reader was also scored on MIDV-500, a public set of phone videos of real specimen passports from 12 countries, filmed on a table, in hand, on a keyboard, in clutter and partly out of frame. The comparison uses Dynamsoft's published 3,315-frame benchmark and its scores.",
+     "الاختبارات الاصطناعية قد تجامل. لذلك قِيس قارئ الجوازات أيضًا على MIDV-500، وهي مجموعة عامة من فيديوهات جوال لجوازات سفر نموذجية حقيقية من 12 دولة، مصوّرة على طاولة وفي اليد وعلى لوحة مفاتيح ووسط أغراض وخارج الإطار جزئيًا. المقارنة على معيار Dynamsoft المنشور من 3,315 لقطة وبنتائجه.") }}</p>
+  <div class="chart bars">
+    <div class="note" style="margin:0 0 8px">{{ t("Frames where the whole MRZ (88 characters) is read exactly right", "اللقطات التي قُرئ فيها السطران الآليان (88 حرفًا) بلا أي خطأ") }}</div>
+    {% set rows = [("This reader (open source)", "هذا القارئ (مفتوح المصدر)", midv.exact_mrz_rate, true)] %}
+    {% for name, v in midv.baselines_exact_mrz_rate.items() %}{% set _ = rows.append((name, name, v, false)) %}{% endfor %}
+    {% for en, ar, v, me in rows %}
+    <div class="brow"><div class="lab">{{ t(en, ar) }}</div>
+      <div class="track"><div class="bar{{ ' me' if me }}" style="width: {{ (100 * v)|round(1) }}%" data-tip="{{ pct(v) }}"></div></div>
+      <div class="end">{{ pct(v) }}</div></div>
+    {% endfor %}
+  </div>
+  <div class="tiles" style="margin-top:14px">
+    <div class="tile"><div class="v">{{ pct(midv.proven_data_precision) }}</div><div class="l">{{ t("of frames it marks as fully proven have all five key fields right", "من اللقطات التي يعتبرها مُثبتة بالكامل بياناتها الخمس الأساسية صحيحة") }}</div>
+      <div class="n">{{ t(midv.proven_data_wrong ~ " wrong out of " ~ (midv.proven_rate * midv.frames)|round|int ~ " (number, surname, given names, birth, expiry)", midv.proven_data_wrong ~ " خطأ من " ~ (midv.proven_rate * midv.frames)|round|int ~ " (الرقم واللقب والاسم والميلاد والانتهاء)") }}</div></div>
+    <div class="tile"><div class="v">{{ pct(midv.verified_field_precision) }}</div><div class="l">{{ t("of verified passport fields are correct", "من بيانات الجوازات المُثبتة صحيحة") }}</div>
+      <div class="n">{{ t("{:,}".format(midv.verified_fields) ~ " verified fields", "{:,}".format(midv.verified_fields) ~ " معلومة مُثبتة") }}</div></div>
+    <div class="tile"><div class="v">{{ pct(midv.proven_rate, 0) }}</div><div class="l">{{ t("of frames proven with no person needed", "من اللقطات أُثبتت دون حاجة لموظف") }}</div>
+      <div class="n">{{ t("the rest are flagged for review", "والباقي يُحال للمراجعة") }}</div></div>
+  </div>
+  <ul class="limits" style="margin-top:14px">
+    <li>{{ t("Where it falls short: raw reading on blurred, steep or partly hidden frames. Of the 3,315 frames it fully proves about one in four; the rest go to a person. One document (Algeria, 300 frames) was never read: both OCR models misread its MRZ print, the country code and check digits failed, and the reader declined to guess.",
+       "أين يقصر: القراءة نفسها في اللقطات المهزوزة أو المائلة بشدة أو المحجوبة جزئيًا. من 3,315 لقطة يُثبت بالكامل حوالي لقطة من كل أربع، والباقي يذهب لموظف. ووثيقة واحدة (الجزائر، 300 لقطة) لم تُقرأ أبدًا: أخطأ النموذجان في طباعة سطرها الآلي، ففشل رمز الدولة وأرقام التحقق، ورفض القارئ أن يخمّن.") }}</li>
+    <li>{{ t("This test is not fully blind. Halfway through the first run I found two rules that let wrong values through as verified (two misreads that cancel out in the check digit, and stray characters after a name), fixed them, and ran all 3,315 frames again. The synthetic test was re-run with the fix too.",
+       "هذا الاختبار ليس أعمى تمامًا. في منتصف التشغيل الأول وجدت قاعدتين سمحتا بمرور قيم خاطئة كمُثبتة (خطآن في القراءة يلغي أحدهما الآخر في رقم التحقق، وحروف زائدة بعد الاسم)، فأصلحتهما وأعدت تشغيل الـ 3,315 لقطة كلها. وأُعيد الاختبار الاصطناعي أيضًا بعد الإصلاح.") }}</li>
+  </ul>
+  <details><summary>{{ t("By filming condition", "حسب ظروف التصوير") }}</summary>
+    <table style="max-width:560px"><thead><tr><th></th><th class="num">{{ t("Frames", "اللقطات") }}</th><th class="num">{{ t("Exact MRZ", "قراءة تامة") }}</th><th class="num">{{ t("Proven", "مُثبتة") }}</th></tr></thead>
+    <tbody>{% set cond_ar = {"table": "على طاولة", "keyboard": "على لوحة مفاتيح", "in hand": "في اليد", "clutter": "وسط أغراض", "partly out of frame": "خارج الإطار جزئيًا"} %}{% for k, a in midv.by_condition.items() %}<tr><td>{{ t(k, cond_ar.get(k, k)) }}</td><td class="num">{{ a.frames }}</td><td class="num">{{ pct(a.exact) }}</td><td class="num">{{ pct(a.proven) }}</td></tr>{% endfor %}</tbody></table>
+  </details>
+</section>
+{% endif %}
+
+<section>
+  <h2>{{ t("How this helps a business", "كيف يفيد هذا الشركات") }}</h2>
+  <div class="legend3">
+    <div><h3>{{ t("Travel agencies", "وكالات السفر") }}</h3>{{ t("Photograph a passport, get booking-ready passenger data. Names, numbers and dates are checked before they reach the airline.", "صوّر الجواز واحصل على بيانات المسافر جاهزة للحجز. الأسماء والأرقام والتواريخ مُراجَعة قبل أن تصل لشركة الطيران.") }}</div>
+    <div><h3>{{ t("Accounts payable", "الحسابات الدائنة") }}</h3>{{ t("Supplier invoices are read and matched to their ZATCA QR. A printed total that differs from the QR is flagged as possible tampering.", "تُقرأ فواتير الموردين وتُطابَق مع رمز QR الضريبي. وإذا اختلف الإجمالي المطبوع عن الرمز تُعلَّم كاحتمال تلاعب.") }}</div>
+    <div><h3>{{ t("Hotels and onboarding", "الفنادق وتسجيل العملاء") }}</h3>{{ t("ID cards and visas at check-in or onboarding, with expiry dates read and proven.", "بطاقات الهوية والتأشيرات عند تسجيل الوصول أو فتح الحساب، مع قراءة تاريخ الانتهاء وإثباته.") }}</div>
+  </div>
+</section>
+
+<section>
+  <h2>{{ t("Good to know", "من المهم أن تعرف") }}</h2>
+  <ul class="limits">
+    <li>{{ t("The main test set is synthetic: documents I generated in 14 designs, then degraded to look like scans and phone photos. Real customer documents would be needed to confirm the automation rate for a specific business. The verified-field precision does not depend on the design, because it comes from checks that standards define.",
+       "مجموعة الاختبار الرئيسية اصطناعية: مستندات ولّدتها بـ 14 تصميمًا ثم شوّهتها لتشبه المسح الضوئي وصور الجوال. لتأكيد نسبة الأتمتة لشركة معيّنة نحتاج مستنداتها الحقيقية. أما دقة البيانات المُثبتة فلا تعتمد على التصميم، لأنها تأتي من تحققات تحددها المعايير.") }}</li>
+    <li>{{ t("Some fields can never be proven from the image alone: an invoice number, a buyer's VAT number, or a name in Arabic. They come back as “read”, and their accuracy is reported separately (" ~ pct(o.read_accuracy) ~ ").",
+       "بعض البيانات لا يمكن إثباتها من الصورة وحدها: رقم الفاتورة، والرقم الضريبي للمشتري، والاسم بالعربية. تأتي بحالة «مقروءة»، ودقتها معروضة منفصلة (" ~ pct(o.read_accuracy) ~ ").") }}</li>
+    <li>{{ t("A passport check digit cannot tell G from 6, S from 8 or L from 1: in its arithmetic they are the same. On real photos two misreads can also cancel out (BD0002028 read as 800002028). So a document number is verified only when the same number is also printed on the page.",
+       "رقم التحقق في الجواز لا يفرّق بين G و6، ولا S و8، ولا L و1، فهي في حسابه متساوية. وفي الصور الحقيقية قد يلغي خطآن أحدهما الآخر (BD0002028 قُرئ 800002028). لذلك لا يُعتبر رقم الوثيقة مُثبتًا إلا إذا وُجد نفس الرقم مطبوعًا في الصفحة.") }}</li>
+    <li>{{ t("A valid ZATCA QR proves what the issuer encoded, not that the invoice is genuine. Checking the cryptographic stamp of phase-2 invoices needs ZATCA's certificates and is not part of this project.",
+       "رمز QR السليم يثبت ما وضعه مُصدر الفاتورة، لا أن الفاتورة أصلية. التحقق من الختم المشفّر لفواتير المرحلة الثانية يحتاج شهادات هيئة الزكاة وليس ضمن هذا المشروع.") }}</li>
+  </ul>
+</section>
+
+<section class="tech">
+  <h2>{{ t("Technical details", "التفاصيل التقنية") }}</h2>
+  <ul>
+    <li>OCR: RapidOCR (ONNX Runtime) — PP-OCRv6 small {{ t("detection and Latin recognition", "للكشف والتعرف اللاتيني") }}; PP-OCRv5 mobile {{ t("Arabic recognition", "للتعرف العربي") }}. {{ t("Each text line keeps both readings; on the MRZ, check digits choose between them.", "كل سطر يحتفظ بالقراءتين، وفي المنطقة الآلية تختار أرقام التحقق بينهما.") }}</li>
+    <li>{{ t("Geometry: Canny edges, contour and convex-hull search, perspective warp (OpenCV); text rows rebuilt after undoing the page angle.", "الهندسة: حواف Canny، والبحث عن الحدود والغلاف المحدب، وتصحيح المنظور (OpenCV)، وإعادة بناء الأسطر بعد إلغاء ميل الصفحة.") }}</li>
+    <li>{{ t("Barcodes: zxing-cpp (QR, PDF417, Aztec). Standards implemented from the specifications: ICAO 9303 (TD1, TD2, TD3, MRV-A/B), ZATCA TLV QR (phases 1 and 2), IATA BCBP.", "الباركود: zxing-cpp (QR وPDF417 وAztec). المعايير مطبّقة من مواصفاتها: ICAO 9303 (TD1 وTD2 وTD3 وMRV-A/B)، وQR الضريبي بصيغة TLV (المرحلتان 1 و2)، وIATA BCBP.") }}</li>
+    <li>{{ t("Test data: HTML templates rendered with headless Chrome, then scan and phone-photo degradation (perspective, blur, noise, shadow, glare, JPEG). Dev and test splits use different seeds; 3 designs are held out of development.", "بيانات الاختبار: قوالب HTML تُرسم بمتصفح Chrome دون واجهة، ثم تشويه يحاكي المسح وتصوير الجوال (منظور وتشويش وضوضاء وظل ولمعان وضغط JPEG). مجموعتا التطوير والاختبار ببذور مختلفة، و3 تصميمات مُبعدة عن التطوير.") }}</li>
+  </ul>
+<pre>python -m docreader passport.jpg            # fields + status
+python -m docreader invoices/ --excel out.xlsx</pre>
+</section>
+
+<footer>{{ t("Built by Yahia Zakaria · results generated " ~ built, "بناء يحيى زكريا · النتائج بتاريخ " ~ built) }}</footer>
+</div>
+<script>
+(function () {
+  var root = document.documentElement, btn = document.getElementById("lang");
+  var params = new URLSearchParams(location.search), lang = params.get("lang");
+  if (!lang) { try { lang = localStorage.getItem("docreader-lang"); } catch (e) {} }
+  function apply(l) {
+    root.lang = l === "ar" ? "ar" : "en";
+    root.dir = l === "ar" ? "rtl" : "ltr";
+    btn.textContent = l === "ar" ? "English" : "العربية";
+    document.title = l === "ar" ? "قارئ المستندات السعودية" : "Saudi Document Reader";
+  }
+  apply(lang || "en");
+  btn.addEventListener("click", function () {
+    var l = root.lang === "ar" ? "en" : "ar";
+    apply(l);
+    try { localStorage.setItem("docreader-lang", l); } catch (e) {}
+    var u = new URL(location.href); u.searchParams.set("lang", l); history.replaceState(null, "", u);
+  });
+  var tip = document.getElementById("tip");
+  document.querySelectorAll("[data-tip]").forEach(function (el) {
+    el.addEventListener("mousemove", function (e) {
+      tip.textContent = el.getAttribute("data-tip"); tip.style.display = "block";
+      tip.style.left = Math.min(e.clientX + 12, innerWidth - 270) + "px"; tip.style.top = (e.clientY + 14) + "px";
+    });
+    el.addEventListener("mouseleave", function () { tip.style.display = "none"; });
+  });
+})();
+</script>
+</body>
+</html>

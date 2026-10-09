@@ -1,0 +1,17 @@
+[project]
+name = "docreader"
+version = "1.0.0"
+description = "Read passports, ID cards, visas, ZATCA invoices and boarding passes from photos, and prove each field."
+requires-python = ">=3.10"
+readme = "README.md"
+license = { text = "MIT" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+docreader = ["report_template.html"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src", "."]
+testpaths = ["tests"]

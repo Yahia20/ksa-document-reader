@@ -1,0 +1,31 @@
+@font-face { font-family: "OCRB"; src: url("../fonts/ocrb10.otf"); }
+@font-face { font-family: "Cairo"; src: url("../fonts/Cairo.ttf"); font-weight: 200 1000; }
+@font-face { font-family: "Naskh"; src: url("../fonts/NotoNaskhArabic.ttf"); font-weight: 400 700; }
+@font-face { font-family: "Amiri"; src: url("../fonts/Amiri-Regular.ttf"); }
+@font-face { font-family: "Amiri"; src: url("../fonts/Amiri-Bold.ttf"); font-weight: 700; }
+@font-face { font-family: "Tajawal"; src: url("../fonts/Tajawal-Regular.ttf"); }
+@font-face { font-family: "Tajawal"; src: url("../fonts/Tajawal-Bold.ttf"); font-weight: 700; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #fff; }
+.ar { direction: rtl; unicode-bidi: isolate; }
+.mrz {
+  font-family: "OCRB", monospace; white-space: pre; letter-spacing: 0; color: #111;
+  line-height: 1.25;
+}
+.specimen {
+  position: absolute; font-family: Arial, sans-serif; font-weight: 700; color: rgba(200, 30, 30, .16);
+  transform: rotate(-18deg); letter-spacing: 8px; pointer-events: none;
+}
+.photo {
+  background: linear-gradient(#cfd8dc, #b0bec5); position: relative; overflow: hidden;
+  border: 1px solid #90a4ae;
+}
+.photo::before { /* head */
+  content: ""; position: absolute; left: 50%; top: 18%; width: 42%; height: 38%;
+  transform: translateX(-50%); border-radius: 50%; background: #78909c;
+}
+.photo::after { /* shoulders */
+  content: ""; position: absolute; left: 50%; bottom: -12%; width: 86%; height: 42%;
+  transform: translateX(-50%); border-radius: 50% 50% 0 0; background: #78909c;
+}

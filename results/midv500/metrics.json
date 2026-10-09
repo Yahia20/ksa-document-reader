@@ -1,0 +1,136 @@
+{
+  "frames": 3315,
+  "exact_mrz_rate": 0.4027,
+  "baselines_exact_mrz_rate": {
+    "Dynamsoft Capture Vision (commercial)": 0.4833,
+    "FastMRZ (open source)": 0.073,
+    "PassportEye (open source)": 0.0027
+  },
+  "proven_rate": 0.248,
+  "proven_precision": 0.9428,
+  "proven_wrong": 47,
+  "proven_data_precision": 0.9939,
+  "proven_data_wrong": 5,
+  "verified_fields": 9066,
+  "verified_field_precision": 0.9986,
+  "by_field": {
+    "document_number": {
+      "verified_rate": 0.3526,
+      "verified_precision": 0.9991
+    },
+    "surname": {
+      "verified_rate": 0.5249,
+      "verified_precision": 0.9994
+    },
+    "given_names": {
+      "verified_rate": 0.46,
+      "verified_precision": 0.9928
+    },
+    "birth_date": {
+      "verified_rate": 0.5228,
+      "verified_precision": 1.0
+    },
+    "expiry_date": {
+      "verified_rate": 0.5053,
+      "verified_precision": 1.0
+    },
+    "nationality": {
+      "verified_rate": 0.3692,
+      "verified_precision": 1.0
+    },
+    "sex": {
+      "verified_rate": 0.0,
+      "verified_precision": null
+    }
+  },
+  "by_condition": {
+    "clutter": {
+      "frames": 720,
+      "exact": 0.3542,
+      "proven": 0.2319
+    },
+    "in hand": {
+      "frames": 720,
+      "exact": 0.3736,
+      "proven": 0.1861
+    },
+    "keyboard": {
+      "frames": 720,
+      "exact": 0.2597,
+      "proven": 0.1181
+    },
+    "partly out of frame": {
+      "frames": 435,
+      "exact": 0.1977,
+      "proven": 0.1195
+    },
+    "table": {
+      "frames": 720,
+      "exact": 0.7472,
+      "proven": 0.5333
+    }
+  },
+  "by_document": {
+    "05": {
+      "frames": 289,
+      "exact": 0.6263,
+      "proven": 0.4394
+    },
+    "06": {
+      "frames": 294,
+      "exact": 0.3878,
+      "proven": 0.2721
+    },
+    "11": {
+      "frames": 273,
+      "exact": 0.3773,
+      "proven": 0.3956
+    },
+    "16": {
+      "frames": 274,
+      "exact": 0.2774,
+      "proven": 0.0
+    },
+    "17": {
+      "frames": 240,
+      "exact": 0.3667,
+      "proven": 0.2708
+    },
+    "18": {
+      "frames": 300,
+      "exact": 0.0,
+      "proven": 0.0
+    },
+    "25": {
+      "frames": 270,
+      "exact": 0.4519,
+      "proven": 0.4111
+    },
+    "27": {
+      "frames": 274,
+      "exact": 0.4489,
+      "proven": 0.4124
+    },
+    "28": {
+      "frames": 278,
+      "exact": 0.4928,
+      "proven": 0.1295
+    },
+    "32": {
+      "frames": 255,
+      "exact": 0.651,
+      "proven": 0.0549
+    },
+    "34": {
+      "frames": 280,
+      "exact": 0.5214,
+      "proven": 0.3786
+    },
+    "41": {
+      "frames": 288,
+      "exact": 0.2743,
+      "proven": 0.2153
+    }
+  },
+  "seconds_per_frame": 4.64
+}
